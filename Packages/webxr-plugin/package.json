@@ -1,9 +1,9 @@
 {
-  "name": "com.needle.xr.sample",
-  "displayName": "XR Plugin Sample",
+  "name": "com.needle.xr.web",
+  "displayName": "Web XR Plugin",
   "version": "0.0.1",
-  "unity": "2019.4",
-  "description": "Provides a minimal xr plugin implementation",
+  "unity": "2019.3",
+  "description": "Provides web xr support",
   "keywords": [
     "unity",
     "xr",

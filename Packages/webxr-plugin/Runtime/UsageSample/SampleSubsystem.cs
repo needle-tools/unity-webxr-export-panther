@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace needle.xr.sample
+namespace needle.xr.web
 {
-    public class SampleSubsystem : SubsystemLifecycleManager<XRSampleSubsystem, XRSampleSubsystemDescriptor>
+    public class SampleSubsystem : SubsystemLifecycleManager<WebXRCameraSubsystem, WebXRSubsystemDescriptor>
     {
         protected override void Awake()
         {

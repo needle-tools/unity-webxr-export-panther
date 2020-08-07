@@ -3,18 +3,18 @@ using UnityEditor;
 using UnityEngine;
 using UnityEditor.XR.Management.Metadata;
 
-namespace needle.xr.sample
+namespace needle.xr.web
 {
     internal class XRPackage : IXRPackage
     {
-        private class XRPluginSampleLoaderMetadata : IXRLoaderMetadata
+        private class WebXRPluginLoaderMetadata : IXRLoaderMetadata
         {
             public string loaderName { get; set; }
             public string loaderType { get; set; }
             public List<BuildTargetGroup> supportedBuildTargets { get; set; }
         }
 
-        private class XRPluginSampleMetadata : IXRPackageMetadata
+        private class WebXRPluginMetadata : IXRPackageMetadata
         {
             public string packageName { get; set; }
             public string packageId { get; set; }
@@ -22,20 +22,20 @@ namespace needle.xr.sample
             public List<IXRLoaderMetadata> loaderMetadata { get; set; } 
         }
 
-        static readonly IXRPackageMetadata s_Metadata = new XRPluginSampleMetadata()
+        static readonly IXRPackageMetadata s_Metadata = new WebXRPluginMetadata()
         {
-            packageName = "XR Plugin Sample",
-            packageId = "com.needle.xr.sample",
-            settingsType = typeof(XRSampleSettings).FullName,
+            packageName = "Web XR Plugin",
+            packageId = "com.needle.xr.web",
+            settingsType = typeof(WebXRSettings).FullName,
             loaderMetadata = new List<IXRLoaderMetadata>() 
             {
-                new XRPluginSampleLoaderMetadata() 
+                new WebXRPluginLoaderMetadata() 
                 {
-                    loaderName = "XR Plugin Sample",
-                    loaderType = typeof(XRSampleLoader).FullName,
+                    loaderName = "Web XR Plugin",
+                    loaderType = typeof(WebXRLoader).FullName,
                     supportedBuildTargets = new List<BuildTargetGroup>() 
                     {
-                        BuildTargetGroup.Standalone
+                        BuildTargetGroup.WebGL
                     }
                 },
             }

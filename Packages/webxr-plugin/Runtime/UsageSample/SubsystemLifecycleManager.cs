@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.XR.Management;
 
-namespace needle.xr.sample
+namespace needle.xr.web
 {
     public class SubsystemLifecycleManager<TSubsystem, TSubsystemDescriptor> : MonoBehaviour
         where TSubsystem : Subsystem<TSubsystemDescriptor>

@@ -1,8 +1,8 @@
 {
-    "name": "com.needle.xr.sample",
+    "name": "com.needle.xr.web",
     "references": [
-        "Unity.XR.Management",
-        "Unity.Subsystem.Registration"
+        "GUID:e40ba710768534012815d3193fa296cb",
+        "GUID:d03624f02fd4aef4aa6b888a1b059ad7"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

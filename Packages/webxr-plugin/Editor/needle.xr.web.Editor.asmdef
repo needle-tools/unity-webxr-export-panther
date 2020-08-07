@@ -1,9 +1,9 @@
 {
-    "name": "com.needle.xr.sample.editor",
+    "name": "com.needle.xr.web.editor",
     "references": [
-        "com.needle.xr.sample",
-        "Unity.XR.Management",
-        "Unity.XR.Management.Editor"
+        "GUID:e40ba710768534012815d3193fa296cb",
+        "GUID:f9fe0089ec81f4079af78eb2287a6163",
+        "GUID:13522b29b5ccb184ea92d50a730358f2"
     ],
     "includePlatforms": [
         "Editor"
