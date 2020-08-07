@@ -1269,8 +1269,11 @@ MonoBehaviour:
   simulate3dof: 0
   eyesToElbow: {x: 0.1, y: -0.4, z: 0.15}
   elbowHand: {x: 0, y: 0, z: 0.25}
-  handJointPrefab: {fileID: 0}
-  showGOs: []
+  handJointPrefab: {fileID: 8513787482403080262, guid: 67541c9d1fd5e2c4798986ee73c07923,
+    type: 3}
+  showGOs:
+  - {fileID: 7285198551702045488}
+  - {fileID: 7285700369335706288}
 --- !u!1 &7284895494016405192
 GameObject:
   m_ObjectHideFlags: 0
@@ -1455,8 +1458,11 @@ MonoBehaviour:
   simulate3dof: 0
   eyesToElbow: {x: 0.1, y: -0.4, z: 0.15}
   elbowHand: {x: 0, y: 0, z: 0.25}
-  handJointPrefab: {fileID: 0}
-  showGOs: []
+  handJointPrefab: {fileID: 8513787482403080262, guid: 67541c9d1fd5e2c4798986ee73c07923,
+    type: 3}
+  showGOs:
+  - {fileID: 7285672097133413896}
+  - {fileID: 7285145022536595884}
 --- !u!1 &7285096375445082820
 GameObject:
   m_ObjectHideFlags: 0
