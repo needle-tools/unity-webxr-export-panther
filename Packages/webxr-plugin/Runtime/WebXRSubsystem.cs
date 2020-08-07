@@ -27,8 +27,15 @@ namespace needle.xr.web
 
         public override void Start()
         {
+            if (_running)
+            {
+                Debug.LogWarning( nameof(WebXRSubsystem) + " is already running");
+                return;
+            }
+            
             if (Instance != null && Instance != this) throw new Exception("Instance is already set by another subsystem");
             Instance = this;
+            
             _running = true;
             set_webxr_events(OnStartAR, OnStartVR, OnEndXR, OnXRCapabilities);
             InitControllersArray(controllersArray, controllersArray.Length);
@@ -42,8 +49,7 @@ namespace needle.xr.web
         {
             _running = false;
         }
-
-
+        
         protected override void OnDestroy()
         {
             _running = false;
@@ -53,7 +59,79 @@ namespace needle.xr.web
 
         private bool _running;
         public override bool running => _running;
+
+        internal void OnUpdate()
+        {
+            // bool hasHandsData = false;
+            // if (OnHandUpdate != null && this.xrState != WebXRState.NORMAL)
+            // {
+            //     if (GetHandFromHandsArray(0, ref leftHand))
+            //     {
+            //         OnHandUpdate(leftHand);
+            //     }
+            //     if (GetHandFromHandsArray(1, ref rightHand))
+            //     {
+            //         OnHandUpdate(rightHand);
+            //     }
+            //     hasHandsData = leftHand.enabled || rightHand.enabled;
+            // }
+            //
+            // if (!hasHandsData && OnControllerUpdate != null && this.xrState != WebXRState.NORMAL)
+            // {
+            //     if (GetGamepadFromControllersArray(0, ref controller1))
+            //     {
+            //         OnControllerUpdate(controller1);
+            //     }
+            //     if (GetGamepadFromControllersArray(1, ref controller2))
+            //     {
+            //         OnControllerUpdate(controller2);
+            //     }
+            // }
+            //
+            // if (OnViewerHitTestUpdate != null && this.xrState == WebXRState.AR)
+            // {
+            //     if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose))
+            //     {
+            //         OnViewerHitTestUpdate(viewerHitTestPose);
+            //     }
+            // }
+        }
+
+        internal void OnLateUpdate()
+        {
+            if (OnHeadsetUpdate == null || this.xrState == WebXRState.NORMAL) return;
+            var leftProjectionMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(0));
+            var rightProjectionMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(1));
+            var leftViewMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(2));
+            var rightViewMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(3));
+            var sitStandMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(4));
+            if (!this.capabilities.hasPosition)
+            {
+                sitStandMatrix = Matrix4x4.Translate(new Vector3(0, this.DefaultHeight, 0));
+            }
+
+            OnHeadsetUpdate?.Invoke(
+                leftProjectionMatrix,
+                rightProjectionMatrix,
+                leftViewMatrix,
+                rightViewMatrix,
+                sitStandMatrix);
+        }
         
+
+        float[] GetMatrixFromSharedArray(int index)
+        {
+            float[] newArray = new float[16];
+            for (int i = 0; i < newArray.Length; i++)
+            {
+                newArray[i] = sharedArray[index * 16 + i];
+            }
+            return newArray;
+        }
+        
+        [Header("Tracking")]
+        [Tooltip("Default height of camera if no room-scale transform is present.")]
+        public float DefaultHeight = 1.2f;
         
         bool viewerHitTestOn = false;
         
@@ -123,7 +201,7 @@ namespace needle.xr.web
         
         
         // Handles WebXR capabilities from browser
-    [MonoPInvokeCallback(typeof(Action<string>))]
+        [MonoPInvokeCallback(typeof(Action<string>))]
         public static void OnXRCapabilities(string json)
         {
             WebXRDisplayCapabilities capabilities = JsonUtility.FromJson<WebXRDisplayCapabilities>(json);
