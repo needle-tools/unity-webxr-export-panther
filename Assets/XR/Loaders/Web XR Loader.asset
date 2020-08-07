@@ -10,5 +10,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aaeb85c04b869154bbc7d516b47788aa, type: 3}
-  m_Name: XR Sample Loader
+  m_Name: Web XR Loader
   m_EditorClassIdentifier: 
