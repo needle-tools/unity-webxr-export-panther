@@ -1,0 +1,16 @@
+{
+    "name": "com.needle.xr.sample",
+    "references": [
+        "Unity.XR.Management",
+        "Unity.Subsystem.Registration"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
