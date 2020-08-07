@@ -379,23 +379,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &7244672094048320284
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7285477074926527326}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f6b70cf8d6f4f94f931699457ea09a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cameraMain: {fileID: 7302731214323301232}
-  cameraL: {fileID: 7301950542442169946}
-  cameraR: {fileID: 7302296450329449022}
-  cameraARL: {fileID: 1861673916051873999}
-  cameraARR: {fileID: 5386081631768621436}
 --- !u!138 &7274304902267449632
 FixedJoint:
   m_ObjectHideFlags: 0
@@ -1731,7 +1714,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7282406704645945314}
-  - component: {fileID: 7244672094048320284}
   - component: {fileID: 7223640188583472472}
   m_Layer: 0
   m_Name: Cameras

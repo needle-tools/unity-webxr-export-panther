@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace needle.xr.web
@@ -23,10 +22,15 @@ namespace needle.xr.web
 
         private bool switched = false;
 
+        protected override void Awake()
+        {
+            base.Awake();
+            subsystem.Start();
+        }
+
         protected override void OnEnable()
         {
             base.OnEnable();
-            subsystem.Start();
             subsystem.OnXRChange += onXRChange;
             subsystem.OnHeadsetUpdate += onHeadsetUpdate;
         }
