@@ -8,6 +8,8 @@ namespace WebXR
 
   public class WebXRController : MonoBehaviour
   {
+    public WebXRCameraManager CameraManager;
+    
     [Tooltip("Controller hand to use.")]
     public WebXRControllerHand hand = WebXRControllerHand.NONE;
     [Tooltip("Controller input settings.")]
@@ -176,6 +178,7 @@ namespace WebXR
     {
       if (handData.hand == (int)hand)
       {
+        Debug.Log(handData.joints[0].position);
         if (!handData.enabled)
         {
           SetHandJointsVisible(false);
@@ -269,27 +272,27 @@ namespace WebXR
     // intensity 0 to 1, duration milliseconds
     public void Pulse(float intensity, float duration)
     {
-      WebXRManager.Instance.HapticPulse(hand, intensity, duration);
+      CameraManager.subsystem.HapticPulse(hand, intensity, duration);
     }
 
-    void OnEnable()
+    void Start()
     {
       if (inputMap == null)
       {
         Debug.LogError("A Input Map must be assigned to WebXRController!");
         return;
       }
-      WebXRManager.Instance.OnControllerUpdate += OnControllerUpdate;
-      WebXRManager.Instance.OnHandUpdate += OnHandUpdate;
-      WebXRManager.Instance.OnHeadsetUpdate += onHeadsetUpdate;
+      CameraManager.subsystem.OnControllerUpdate += OnControllerUpdate;
+      CameraManager.subsystem.OnHandUpdate += OnHandUpdate;
+      CameraManager.subsystem.OnHeadsetUpdate += onHeadsetUpdate;
       SetVisible(false);
     }
 
-    void OnDisabled()
+    void OnDestroy()
     {
-      WebXRManager.Instance.OnControllerUpdate -= OnControllerUpdate;
-      WebXRManager.Instance.OnHandUpdate -= OnHandUpdate;
-      WebXRManager.Instance.OnHeadsetUpdate -= onHeadsetUpdate;
+      CameraManager.subsystem.OnControllerUpdate -= OnControllerUpdate;
+      CameraManager.subsystem.OnHandUpdate -= OnHandUpdate;
+      CameraManager.subsystem.OnHeadsetUpdate -= onHeadsetUpdate;
       SetVisible(false);
     }
   }

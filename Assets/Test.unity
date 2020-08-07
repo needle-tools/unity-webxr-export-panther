@@ -379,62 +379,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &7244316799897977050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7285000462743499086}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 580e3dd931df2bd42b042a7e8fde2aa8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attachJoint: {fileID: 0}
-  currentRigidBody: {fileID: 0}
-  contactRigidBodies: []
-  anim: {fileID: 0}
-  controller: {fileID: 0}
---- !u!114 &7244341610950265688
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7284835773844283668}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74bfe9c8d313cf9458117129f19cd7af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hand: 2
-  inputMap: {fileID: 11400000, guid: a37529c06e00da94091bc81a0193c815, type: 2}
-  simulate3dof: 0
-  eyesToElbow: {x: 0.1, y: -0.4, z: 0.15}
-  elbowHand: {x: 0, y: 0, z: 0.25}
-  handJointPrefab: {fileID: 8513787482403080262, guid: 67541c9d1fd5e2c4798986ee73c07923,
-    type: 3}
-  showGOs:
-  - {fileID: 7285198551702045488}
-  - {fileID: 7285700369335706288}
---- !u!114 &7244519627499710876
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7284835773844283668}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 580e3dd931df2bd42b042a7e8fde2aa8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attachJoint: {fileID: 0}
-  currentRigidBody: {fileID: 0}
-  contactRigidBodies: []
-  anim: {fileID: 0}
-  controller: {fileID: 0}
 --- !u!114 &7244672094048320284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -452,43 +396,6 @@ MonoBehaviour:
   cameraR: {fileID: 7302296450329449022}
   cameraARL: {fileID: 1861673916051873999}
   cameraARR: {fileID: 5386081631768621436}
---- !u!114 &7244768316711392582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7285000462743499086}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74bfe9c8d313cf9458117129f19cd7af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hand: 1
-  inputMap: {fileID: 11400000, guid: f2b0e62590098b246823680b10d75b46, type: 2}
-  simulate3dof: 0
-  eyesToElbow: {x: 0.1, y: -0.4, z: 0.15}
-  elbowHand: {x: 0, y: 0, z: 0.25}
-  handJointPrefab: {fileID: 8513787482403080262, guid: 67541c9d1fd5e2c4798986ee73c07923,
-    type: 3}
-  showGOs:
-  - {fileID: 7285672097133413896}
-  - {fileID: 7285145022536595884}
---- !u!114 &7244818843857217866
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7285233067029262722}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 519f6ee6510174b44bbe9a8a2d3b6a6a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 1
-  DefaultHeight: 1.2
-  xrState: 2
 --- !u!138 &7274304902267449632
 FixedJoint:
   m_ObjectHideFlags: 0
@@ -1336,8 +1243,7 @@ GameObject:
   - component: {fileID: 7274623957195524420}
   - component: {fileID: 7227617786414947888}
   - component: {fileID: 7277404182549769146}
-  - component: {fileID: 7244341610950265688}
-  - component: {fileID: 7244519627499710876}
+  - component: {fileID: 7284835773844283669}
   m_Layer: 0
   m_Name: handR
   m_TagString: Untagged
@@ -1345,6 +1251,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &7284835773844283669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7284835773844283668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74bfe9c8d313cf9458117129f19cd7af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CameraManager: {fileID: 7285233067029262723}
+  hand: 2
+  inputMap: {fileID: 11400000, guid: a37529c06e00da94091bc81a0193c815, type: 2}
+  simulate3dof: 0
+  eyesToElbow: {x: 0.1, y: -0.4, z: 0.15}
+  elbowHand: {x: 0, y: 0, z: 0.25}
+  handJointPrefab: {fileID: 0}
+  showGOs: []
 --- !u!1 &7284895494016405192
 GameObject:
   m_ObjectHideFlags: 0
@@ -1503,8 +1429,7 @@ GameObject:
   - component: {fileID: 7274304902267449632}
   - component: {fileID: 7227550154649255576}
   - component: {fileID: 7277813757422220340}
-  - component: {fileID: 7244768316711392582}
-  - component: {fileID: 7244316799897977050}
+  - component: {fileID: 7285000462743499087}
   m_Layer: 0
   m_Name: handL
   m_TagString: Untagged
@@ -1512,6 +1437,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &7285000462743499087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7285000462743499086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74bfe9c8d313cf9458117129f19cd7af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CameraManager: {fileID: 7285233067029262723}
+  hand: 1
+  inputMap: {fileID: 11400000, guid: f2b0e62590098b246823680b10d75b46, type: 2}
+  simulate3dof: 0
+  eyesToElbow: {x: 0.1, y: -0.4, z: 0.15}
+  elbowHand: {x: 0, y: 0, z: 0.25}
+  handJointPrefab: {fileID: 0}
+  showGOs: []
 --- !u!1 &7285096375445082820
 GameObject:
   m_ObjectHideFlags: 0
@@ -1650,7 +1595,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7282255588330441966}
-  - component: {fileID: 7244818843857217866}
   - component: {fileID: 7285233067029262723}
   m_Layer: 0
   m_Name: WebXRCameraSet

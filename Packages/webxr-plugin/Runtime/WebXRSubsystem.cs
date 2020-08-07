@@ -62,39 +62,39 @@ namespace needle.xr.web
 
         internal void OnUpdate()
         {
-            // bool hasHandsData = false;
-            // if (OnHandUpdate != null && this.xrState != WebXRState.NORMAL)
-            // {
-            //     if (GetHandFromHandsArray(0, ref leftHand))
-            //     {
-            //         OnHandUpdate(leftHand);
-            //     }
-            //     if (GetHandFromHandsArray(1, ref rightHand))
-            //     {
-            //         OnHandUpdate(rightHand);
-            //     }
-            //     hasHandsData = leftHand.enabled || rightHand.enabled;
-            // }
-            //
-            // if (!hasHandsData && OnControllerUpdate != null && this.xrState != WebXRState.NORMAL)
-            // {
-            //     if (GetGamepadFromControllersArray(0, ref controller1))
-            //     {
-            //         OnControllerUpdate(controller1);
-            //     }
-            //     if (GetGamepadFromControllersArray(1, ref controller2))
-            //     {
-            //         OnControllerUpdate(controller2);
-            //     }
-            // }
-            //
-            // if (OnViewerHitTestUpdate != null && this.xrState == WebXRState.AR)
-            // {
-            //     if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose))
-            //     {
-            //         OnViewerHitTestUpdate(viewerHitTestPose);
-            //     }
-            // }
+            bool hasHandsData = false;
+            if (OnHandUpdate != null && this.xrState != WebXRState.NORMAL)
+            {
+                if (GetHandFromHandsArray(0, ref leftHand))
+                {
+                    OnHandUpdate(leftHand);
+                }
+                if (GetHandFromHandsArray(1, ref rightHand))
+                {
+                    OnHandUpdate(rightHand);
+                }
+                hasHandsData = leftHand.enabled || rightHand.enabled;
+            }
+            
+            if (!hasHandsData && OnControllerUpdate != null && this.xrState != WebXRState.NORMAL)
+            {
+                if (GetGamepadFromControllersArray(0, ref controller1))
+                {
+                    OnControllerUpdate(controller1);
+                }
+                if (GetGamepadFromControllersArray(1, ref controller2))
+                {
+                    OnControllerUpdate(controller2);
+                }
+            }
+            
+            if (OnViewerHitTestUpdate != null && this.xrState == WebXRState.AR)
+            {
+                if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose))
+                {
+                    OnViewerHitTestUpdate(viewerHitTestPose);
+                }
+            }
         }
 
         internal void OnLateUpdate()
@@ -129,6 +129,84 @@ namespace needle.xr.web
             return newArray;
         }
         
+        
+    bool GetGamepadFromControllersArray(int controllerIndex, ref WebXRControllerData newControllerData)
+    {
+      int arrayPosition = controllerIndex * 20;
+      int frameNumber = (int)controllersArray[arrayPosition++];
+      if (newControllerData.frame == frameNumber)
+      {
+        return false;
+      }
+      newControllerData.frame = frameNumber;
+      newControllerData.enabled = controllersArray[arrayPosition++] != 0;
+      newControllerData.hand = (int)controllersArray[arrayPosition++];
+      if (!newControllerData.enabled)
+      {
+        return true;
+      }
+      newControllerData.position = new Vector3(controllersArray[arrayPosition++], controllersArray[arrayPosition++], controllersArray[arrayPosition++]);
+      newControllerData.rotation = new Quaternion(controllersArray[arrayPosition++], controllersArray[arrayPosition++], controllersArray[arrayPosition++], controllersArray[arrayPosition++]);
+      newControllerData.trigger = controllersArray[arrayPosition++];
+      newControllerData.squeeze = controllersArray[arrayPosition++];
+      newControllerData.thumbstick = controllersArray[arrayPosition++];
+      newControllerData.thumbstickX = controllersArray[arrayPosition++];
+      newControllerData.thumbstickY = controllersArray[arrayPosition++];
+      newControllerData.touchpad = controllersArray[arrayPosition++];
+      newControllerData.touchpadX = controllersArray[arrayPosition++];
+      newControllerData.touchpadY = controllersArray[arrayPosition++];
+      newControllerData.buttonA = controllersArray[arrayPosition++];
+      newControllerData.buttonB = controllersArray[arrayPosition];
+      return true;
+    }
+
+    bool GetHandFromHandsArray(int handIndex, ref WebXRHandData handObject)
+    {
+      int arrayPosition = handIndex * 230;
+      int frameNumber = (int)handsArray[arrayPosition++];
+      if (handObject.frame == frameNumber)
+      {
+        return false;
+      }
+      handObject.frame = frameNumber;
+      handObject.enabled = handsArray[arrayPosition++] != 0;
+      handObject.hand = (int)handsArray[arrayPosition++];
+      handObject.trigger = handsArray[arrayPosition++];
+      handObject.squeeze = handsArray[arrayPosition++];
+      if (!handObject.enabled)
+      {
+        return true;
+      }
+      for (int i=0; i<=WebXRHandData.LITTLE_PHALANX_TIP; i++)
+      {
+        handObject.joints[i].enabled = handsArray[arrayPosition++] != 0;
+        handObject.joints[i].position = new Vector3(handsArray[arrayPosition++], handsArray[arrayPosition++], handsArray[arrayPosition++]);
+        handObject.joints[i].rotation = new Quaternion(handsArray[arrayPosition++], handsArray[arrayPosition++], handsArray[arrayPosition++], handsArray[arrayPosition++]);
+        handObject.joints[i].radius = handsArray[arrayPosition++];
+      }
+      return true;
+    }
+    
+    
+    bool GetHitTestPoseFromViewerHitTestPoseArray(ref WebXRHitPoseData hitPoseData)
+    {
+        int arrayPosition = 0;
+        int frameNumber = (int)viewerHitTestPoseArray[arrayPosition++];
+        if (hitPoseData.frame == frameNumber)
+        {
+          return false;
+        }
+        hitPoseData.frame = frameNumber;
+        hitPoseData.available = viewerHitTestPoseArray[arrayPosition++] != 0;
+        if (!hitPoseData.available)
+        {
+          return true;
+        }
+        hitPoseData.position = new Vector3(viewerHitTestPoseArray[arrayPosition++], viewerHitTestPoseArray[arrayPosition++], viewerHitTestPoseArray[arrayPosition++]);
+        hitPoseData.rotation = new Quaternion(viewerHitTestPoseArray[arrayPosition++], viewerHitTestPoseArray[arrayPosition++], viewerHitTestPoseArray[arrayPosition++], viewerHitTestPoseArray[arrayPosition++]);
+        return true;
+    }
+        
         [Header("Tracking")]
         [Tooltip("Default height of camera if no room-scale transform is present.")]
         public float DefaultHeight = 1.2f;
@@ -137,6 +215,21 @@ namespace needle.xr.web
         
         public delegate void XRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect);
         public event XRChange OnXRChange;
+        
+        public delegate void ControllerUpdate(WebXRControllerData controllerData);
+        public event ControllerUpdate OnControllerUpdate;
+        
+        private WebXRHandData leftHand = new WebXRHandData();
+        private WebXRHandData rightHand = new WebXRHandData();
+
+        private WebXRControllerData controller1 = new WebXRControllerData();
+        private WebXRControllerData controller2 = new WebXRControllerData();
+        
+        private WebXRHitPoseData viewerHitTestPose = new WebXRHitPoseData();
+        public delegate void HitTestUpdate(WebXRHitPoseData hitPoseData);
+        public event HitTestUpdate OnViewerHitTestUpdate;
+        public delegate void HandUpdate(WebXRHandData handData);
+        public event HandUpdate OnHandUpdate;
         
         public delegate void HeadsetUpdate(
             Matrix4x4 leftProjectionMatrix,

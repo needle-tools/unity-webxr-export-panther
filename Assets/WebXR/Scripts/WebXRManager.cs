@@ -132,62 +132,6 @@ namespace WebXR
       return newArray;
     }
 
-    bool GetGamepadFromControllersArray(int controllerIndex, ref WebXRControllerData newControllerData)
-    {
-      // int arrayPosition = controllerIndex * 20;
-      // int frameNumber = (int)controllersArray[arrayPosition++];
-      // if (newControllerData.frame == frameNumber)
-      // {
-      //   return false;
-      // }
-      // newControllerData.frame = frameNumber;
-      // newControllerData.enabled = controllersArray[arrayPosition++] != 0;
-      // newControllerData.hand = (int)controllersArray[arrayPosition++];
-      // if (!newControllerData.enabled)
-      // {
-      //   return true;
-      // }
-      // newControllerData.position = new Vector3(controllersArray[arrayPosition++], controllersArray[arrayPosition++], controllersArray[arrayPosition++]);
-      // newControllerData.rotation = new Quaternion(controllersArray[arrayPosition++], controllersArray[arrayPosition++], controllersArray[arrayPosition++], controllersArray[arrayPosition++]);
-      // newControllerData.trigger = controllersArray[arrayPosition++];
-      // newControllerData.squeeze = controllersArray[arrayPosition++];
-      // newControllerData.thumbstick = controllersArray[arrayPosition++];
-      // newControllerData.thumbstickX = controllersArray[arrayPosition++];
-      // newControllerData.thumbstickY = controllersArray[arrayPosition++];
-      // newControllerData.touchpad = controllersArray[arrayPosition++];
-      // newControllerData.touchpadX = controllersArray[arrayPosition++];
-      // newControllerData.touchpadY = controllersArray[arrayPosition++];
-      // newControllerData.buttonA = controllersArray[arrayPosition++];
-      // newControllerData.buttonB = controllersArray[arrayPosition];
-      return true;
-    }
-
-    bool GetHandFromHandsArray(int handIndex, ref WebXRHandData handObject)
-    {
-      // int arrayPosition = handIndex * 230;
-      // int frameNumber = (int)handsArray[arrayPosition++];
-      // if (handObject.frame == frameNumber)
-      // {
-      //   return false;
-      // }
-      // handObject.frame = frameNumber;
-      // handObject.enabled = handsArray[arrayPosition++] != 0;
-      // handObject.hand = (int)handsArray[arrayPosition++];
-      // handObject.trigger = handsArray[arrayPosition++];
-      // handObject.squeeze = handsArray[arrayPosition++];
-      // if (!handObject.enabled)
-      // {
-      //   return true;
-      // }
-      // for (int i=0; i<=WebXRHandData.LITTLE_PHALANX_TIP; i++)
-      // {
-      //   handObject.joints[i].enabled = handsArray[arrayPosition++] != 0;
-      //   handObject.joints[i].position = new Vector3(handsArray[arrayPosition++], handsArray[arrayPosition++], handsArray[arrayPosition++]);
-      //   handObject.joints[i].rotation = new Quaternion(handsArray[arrayPosition++], handsArray[arrayPosition++], handsArray[arrayPosition++], handsArray[arrayPosition++]);
-      //   handObject.joints[i].radius = handsArray[arrayPosition++];
-      // }
-      return true;
-    }
 
     bool GetHitTestPoseFromViewerHitTestPoseArray(ref WebXRHitPoseData hitPoseData)
     {
@@ -216,62 +160,62 @@ namespace WebXR
 
     void Update()
     {
-      bool hasHandsData = false;
-      if (OnHandUpdate != null && this.xrState != WebXRState.NORMAL)
-      {
-        if (GetHandFromHandsArray(0, ref leftHand))
-        {
-          OnHandUpdate(leftHand);
-        }
-        if (GetHandFromHandsArray(1, ref rightHand))
-        {
-          OnHandUpdate(rightHand);
-        }
-        hasHandsData = leftHand.enabled || rightHand.enabled;
-      }
-      
-      if (!hasHandsData && OnControllerUpdate != null && this.xrState != WebXRState.NORMAL)
-      {
-        if (GetGamepadFromControllersArray(0, ref controller1))
-        {
-          OnControllerUpdate(controller1);
-        }
-        if (GetGamepadFromControllersArray(1, ref controller2))
-        {
-          OnControllerUpdate(controller2);
-        }
-      }
-
-      if (OnViewerHitTestUpdate != null && this.xrState == WebXRState.AR)
-      {
-        if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose))
-        {
-          OnViewerHitTestUpdate(viewerHitTestPose);
-        }
-      }
+      // bool hasHandsData = false;
+      // if (OnHandUpdate != null && this.xrState != WebXRState.NORMAL)
+      // {
+      //   if (GetHandFromHandsArray(0, ref leftHand))
+      //   {
+      //     OnHandUpdate(leftHand);
+      //   }
+      //   if (GetHandFromHandsArray(1, ref rightHand))
+      //   {
+      //     OnHandUpdate(rightHand);
+      //   }
+      //   hasHandsData = leftHand.enabled || rightHand.enabled;
+      // }
+      //
+      // if (!hasHandsData && OnControllerUpdate != null && this.xrState != WebXRState.NORMAL)
+      // {
+      //   if (GetGamepadFromControllersArray(0, ref controller1))
+      //   {
+      //     OnControllerUpdate(controller1);
+      //   }
+      //   if (GetGamepadFromControllersArray(1, ref controller2))
+      //   {
+      //     OnControllerUpdate(controller2);
+      //   }
+      // }
+      //
+      // if (OnViewerHitTestUpdate != null && this.xrState == WebXRState.AR)
+      // {
+      //   if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose))
+      //   {
+      //     OnViewerHitTestUpdate(viewerHitTestPose);
+      //   }
+      // }
     }
 
     void LateUpdate()
     {
-      if (OnHeadsetUpdate != null && this.xrState != WebXRState.NORMAL)
-      {
-        Matrix4x4 leftProjectionMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(0));
-        Matrix4x4 rightProjectionMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(1));
-        Matrix4x4 leftViewMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(2));
-        Matrix4x4 rightViewMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(3));
-        Matrix4x4 sitStandMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(4));
-        // if (!this.capabilities.hasPosition)
-        // {
-        //   sitStandMatrix = Matrix4x4.Translate(new Vector3(0, this.DefaultHeight, 0));
-        // }
-
-        OnHeadsetUpdate(
-            leftProjectionMatrix,
-            rightProjectionMatrix,
-            leftViewMatrix,
-            rightViewMatrix,
-            sitStandMatrix);
-      }
+      // if (OnHeadsetUpdate != null && this.xrState != WebXRState.NORMAL)
+      // {
+      //   Matrix4x4 leftProjectionMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(0));
+      //   Matrix4x4 rightProjectionMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(1));
+      //   Matrix4x4 leftViewMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(2));
+      //   Matrix4x4 rightViewMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(3));
+      //   Matrix4x4 sitStandMatrix = WebXRMatrixUtil.NumbersToMatrix(GetMatrixFromSharedArray(4));
+      //   // if (!this.capabilities.hasPosition)
+      //   // {
+      //   //   sitStandMatrix = Matrix4x4.Translate(new Vector3(0, this.DefaultHeight, 0));
+      //   // }
+      //
+      //   OnHeadsetUpdate(
+      //       leftProjectionMatrix,
+      //       rightProjectionMatrix,
+      //       leftViewMatrix,
+      //       rightViewMatrix,
+      //       sitStandMatrix);
+      // }
     }
   }
 }

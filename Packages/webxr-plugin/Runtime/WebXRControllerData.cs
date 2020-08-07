@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace WebXR
+namespace needle.xr.web
 {
   [System.Serializable]
   public class WebXRControllerData
@@ -75,8 +75,6 @@ namespace WebXR
     public Vector3 position;
     public Quaternion rotation;
   }
-
-  public enum WebXRControllerHand { NONE, LEFT, RIGHT };
 
   [System.Serializable]
   public class WebXRControllerButton
