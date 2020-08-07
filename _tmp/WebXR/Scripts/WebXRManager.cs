@@ -3,11 +3,11 @@ using AOT;
 using System;
 using System.Runtime.InteropServices;
 #endif
+using needle.xr.web;
 using UnityEngine;
 
 namespace WebXR
 {
-  public enum WebXRState { VR, AR, NORMAL }
 
   public class WebXRManager : MonoBehaviour
   {
@@ -21,8 +21,6 @@ namespace WebXR
     [HideInInspector]
     public WebXRState xrState = WebXRState.NORMAL;
 
-    public delegate void XRCapabilitiesUpdate(WebXRDisplayCapabilities capabilities);
-    public event XRCapabilitiesUpdate OnXRCapabilitiesUpdate;
 
     public delegate void XRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect);
     public event XRChange OnXRChange;
@@ -44,48 +42,6 @@ namespace WebXR
     public delegate void HitTestUpdate(WebXRHitPoseData hitPoseData);
     public event HitTestUpdate OnViewerHitTestUpdate;
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    private static extern void InitXRSharedArray(float[] array, int length);
-
-    [DllImport("__Internal")]
-    private static extern void InitControllersArray(float[] array, int length);
-
-    [DllImport("__Internal")]
-    private static extern void InitHandsArray(float[] array, int length);
-
-    [DllImport("__Internal")]
-    private static extern void InitViewerHitTestPoseArray(float[] array, int length);
-
-    [DllImport("__Internal")]
-    private static extern void ToggleViewerHitTest();
-
-    [DllImport("__Internal")]
-    private static extern void ControllerPulse(int controller, float intensity, float duration);
-
-    [DllImport("__Internal")]
-    private static extern void ListenWebXRData();
-
-    [DllImport("__Internal")]
-    private static extern void set_webxr_events(Action<int, float, float, float, float, float, float, float, float> on_start_ar,
-                                                Action<int> on_start_vr,
-                                                Action on_end_xr,
-                                                Action<string> on_xr_capabilities);
-#endif
-
-    // Shared array which we will load headset data in from webxr.jslib
-    // Array stores  5 matrices, each 16 values, stored linearly.
-    float[] sharedArray = new float[5 * 16];
-
-    // Shared array for controllers data
-    float[] controllersArray = new float[2 * 20];
-
-    // Shared array for hands data
-    float[] handsArray = new float[2 * (25 * 9 + 5)];
-
-    // Shared array for hit-test pose data
-    float[] viewerHitTestPoseArray = new float[9];
-
     bool viewerHitTestOn = false;
 
     private WebXRHandData leftHand = new WebXRHandData();
@@ -96,7 +52,6 @@ namespace WebXR
 
     private WebXRHitPoseData viewerHitTestPose = new WebXRHitPoseData();
 
-    private WebXRDisplayCapabilities capabilities = new WebXRDisplayCapabilities();
 
     public static WebXRManager Instance
     {
@@ -136,63 +91,7 @@ namespace WebXR
       xrState = WebXRState.NORMAL;
     }
 
-    // Handles WebXR capabilities from browser
-    #if UNITY_WEBGL && !UNITY_EDITOR
-    [MonoPInvokeCallback(typeof(Action<string>))]
-    #endif
-    public static void OnXRCapabilities(string json)
-    {
-      WebXRDisplayCapabilities capabilities = JsonUtility.FromJson<WebXRDisplayCapabilities>(json);
-      instance.OnXRCapabilities(capabilities);
-    }
-
-    public void OnXRCapabilities(WebXRDisplayCapabilities capabilities)
-    {
-#if !UNITY_EDITOR && UNITY_WEBGL
-        this.capabilities = capabilities;
-#endif
-
-      if (OnXRCapabilitiesUpdate != null)
-        OnXRCapabilitiesUpdate(capabilities);
-    }
-
-    public void setXrState(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
-    {
-      this.xrState = state;
-      viewerHitTestOn = false;
-      if (OnXRChange != null)
-        OnXRChange(state, viewsCount, leftRect, rightRect);
-    }
-
-    // received start VR from WebVR browser
-    #if UNITY_WEBGL && !UNITY_EDITOR
-    [MonoPInvokeCallback(typeof(Action<int, float, float, float, float, float, float, float, float>))]
-    #endif
-    public static void OnStartAR(int viewsCount,
-      float left_x, float left_y, float left_w, float left_h,
-      float right_x, float right_y, float right_w, float right_h)
-    {
-      Instance.setXrState(WebXRState.AR, viewsCount,
-                          new Rect(left_x, left_y, left_w, left_h),
-                          new Rect(right_x, right_y, right_w, right_h));
-    }
-
-    #if UNITY_WEBGL && !UNITY_EDITOR
-    [MonoPInvokeCallback(typeof(Action<int>))]
-    #endif
-    public static void OnStartVR(int viewsCount)
-    {
-      Instance.setXrState(WebXRState.VR, viewsCount, new Rect(), new Rect());
-    }
-
-    // receive end VR from WebVR browser
-    #if UNITY_WEBGL && !UNITY_EDITOR
-    [MonoPInvokeCallback(typeof(Action))]
-    #endif
-    public static void OnEndXR()
-    {
-      Instance.setXrState(WebXRState.NORMAL, 1, new Rect(), new Rect());
-    }
+   
 
     public void StartViewerHitTest()
     {
@@ -312,12 +211,6 @@ namespace WebXR
     void Start()
     {
 #if !UNITY_EDITOR && UNITY_WEBGL
-        set_webxr_events(OnStartAR, OnStartVR, OnEndXR, OnXRCapabilities);
-        InitControllersArray(controllersArray, controllersArray.Length);
-        InitHandsArray(handsArray, handsArray.Length);
-        InitViewerHitTestPoseArray(viewerHitTestPoseArray, viewerHitTestPoseArray.Length);
-        InitXRSharedArray(sharedArray, sharedArray.Length);
-        ListenWebXRData();
 #endif
     }
 

@@ -33,14 +33,14 @@ namespace needle.xr.web
         /// Returns the active <c>TSubsystem</c> instance if present, otherwise returns null.
         /// </summary>
         /// <returns>The active subsystem instance, or `null` if there isn't one.</returns>
-        protected TSubsystem GetActiveSubsystemInstance()
+        protected virtual TSubsystem GetActiveSubsystemInstance()
         {
             TSubsystem activeSubsystem = null;
 
             // Query the currently active loader for the created subsystem, if one exists.
             if (XRGeneralSettings.Instance != null && XRGeneralSettings.Instance.Manager != null)
             {
-                XRLoader loader = XRGeneralSettings.Instance.Manager.activeLoader;
+                var loader = XRGeneralSettings.Instance.Manager.activeLoader;
                 if (loader != null)
                     activeSubsystem = loader.GetLoadedSubsystem<TSubsystem>();
             }

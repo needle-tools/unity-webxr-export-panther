@@ -18,13 +18,13 @@ public class SceneHitTest : MonoBehaviour
     visual.SetActive(false);
     originPosition = WebXRManager.Instance.transform.localPosition;
     originRotation = WebXRManager.Instance.transform.localRotation;
-    WebXRManager.Instance.OnXRChange += HandleOnXRChange;
+    // WebXRManager.Instance.OnXRChange += HandleOnXRChange;
     arCameraTransform = FindObjectOfType<WebXRCamera>().GetCamera(WebXRCamera.CameraID.LeftAR).transform;
   }
 
   void OnDisable()
   {
-    WebXRManager.Instance.OnXRChange -= HandleOnXRChange;
+    // WebXRManager.Instance.OnXRChange -= HandleOnXRChange;
     WebXRManager.Instance.OnViewerHitTestUpdate -= HandleOnViewerHitTestUpdate;
   }
 
@@ -39,21 +39,21 @@ public class SceneHitTest : MonoBehaviour
     }
   }
 
-  private void HandleOnXRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
-  {
-    WebXRManager.Instance.transform.localPosition = originPosition;
-    WebXRManager.Instance.transform.localRotation = originRotation;
-    isFollowing = false;
-    if (state == WebXRState.AR)
-    {
-      WebXRManager.Instance.OnViewerHitTestUpdate += HandleOnViewerHitTestUpdate;
-      WebXRManager.Instance.StartViewerHitTest();
-    }
-    else
-    {
-      WebXRManager.Instance.OnViewerHitTestUpdate -= HandleOnViewerHitTestUpdate;
-    }
-  }
+  // private void HandleOnXRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
+  // {
+  //   WebXRManager.Instance.transform.localPosition = originPosition;
+  //   WebXRManager.Instance.transform.localRotation = originRotation;
+  //   isFollowing = false;
+  //   if (state == WebXRState.AR)
+  //   {
+  //     WebXRManager.Instance.OnViewerHitTestUpdate += HandleOnViewerHitTestUpdate;
+  //     WebXRManager.Instance.StartViewerHitTest();
+  //   }
+  //   else
+  //   {
+  //     WebXRManager.Instance.OnViewerHitTestUpdate -= HandleOnViewerHitTestUpdate;
+  //   }
+  // }
 
   void HandleOnViewerHitTestUpdate(WebXRHitPoseData hitPoseData)
   {

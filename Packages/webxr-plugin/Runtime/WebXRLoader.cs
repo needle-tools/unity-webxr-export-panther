@@ -7,37 +7,37 @@ namespace needle.xr.web
 {
     public class WebXRLoader : XRLoaderHelper
     {
-        static readonly List<WebXRSubsystemDescriptor> sampleSubsystemDescriptors = new List<WebXRSubsystemDescriptor>();
+        static readonly List<WebXRSubsystemDescriptor> webxrDescriptors = new List<WebXRSubsystemDescriptor>();
         
         
         /// <summary>
         /// The `XRSessionSubsystem` whose lifecycle is managed by this loader.
         /// </summary>
-        public WebXRCameraSubsystem webXRCameraSubsystem => GetLoadedSubsystem<WebXRCameraSubsystem>();
+        public WebXRSubsystem webXRSubsystem => GetLoadedSubsystem<WebXRSubsystem>();
         
         public override bool Initialize()
         {
             Debug.Log("Initialize " + nameof(WebXRLoader));
-            CreateSubsystem<WebXRSubsystemDescriptor, WebXRCameraSubsystem>(sampleSubsystemDescriptors, typeof(WebXRCameraSubsystem).FullName);
-            return webXRCameraSubsystem != null;
+            CreateSubsystem<WebXRSubsystemDescriptor, WebXRSubsystem>(webxrDescriptors, typeof(WebXRSubsystem).FullName);
+            return webXRSubsystem != null;
         }
         
 
         public override bool Start()
         {
-            webXRCameraSubsystem.Start();
+            webXRSubsystem.Start();
             return true;
         }
 
         public override bool Stop()
         {
-            webXRCameraSubsystem.Stop();
+            webXRSubsystem.Stop();
             return base.Stop();
         }
 
         private void OnDestroy()
         {
-            webXRCameraSubsystem.Destroy();
+            webXRSubsystem.Destroy();
         }
     }
 }

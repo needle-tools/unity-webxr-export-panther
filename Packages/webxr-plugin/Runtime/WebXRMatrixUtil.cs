@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace WebXR
+namespace needle.xr.web
 {
   public static class WebXRMatrixUtil
   {
