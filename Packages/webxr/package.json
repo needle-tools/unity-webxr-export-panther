@@ -1,7 +1,7 @@
 {
   "name": "com.de-panther.webxr",
-  "displayName": "Web XR Plugin",
-  "version": "0.0.1",
+  "displayName": "WebXR Plugin",
+  "version": "0.1.0-preview",
   "unity": "2019.3",
   "description": "Provides web xr support",
   "keywords": [
