@@ -43,3 +43,5 @@ Assets/Plugins/Editor/JetBrains
 *.pem
 */Library
 */Temp
+/_tmp
+_tmp
