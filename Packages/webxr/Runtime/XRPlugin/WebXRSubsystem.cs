@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 using AOT;
 using needle.weaver.webxr;
 using UnityEngine;
+using UnityEngine.XR;
+using WebXR;
+using WebXRSubsystem = needle.weaver.webxr.WebXRSubsystem;
 
 namespace WebXR
 {
@@ -27,7 +30,7 @@ namespace WebXR
       else Debug.Log("Failed registering " + nameof(WebXRSubsystemDescriptor));
     }
 
-    private MockInputDevice headset;
+    private MockInputDevice headset, controllerLeft, controllerRight;
 
     public override void Start()
     {
@@ -50,7 +53,33 @@ namespace WebXR
           () => rightRotation
           );
       }
+      if(controllerRight == null) 
+        controllerRight = CreateController(XRNode.RightHand, controller1);
+      if (controllerLeft == null)
+        controllerLeft = CreateController(XRNode.LeftHand, controller2);
+      
       SubsystemAPI.RegisterInputDevice(headset);
+      SubsystemAPI.RegisterInputDevice(controllerLeft);
+      SubsystemAPI.RegisterInputDevice(controllerRight);
+    }
+
+    private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller)
+    {
+      var device = new MockInputDevice("<XRController>", node)
+      {
+        SerialNumber = "1.0.0",
+        Manufacturer = "Needle",
+        DeviceCharacteristics = InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand
+      };
+      device.AddFeature(CommonUsages.isTracked, () => controller?.enabled ?? false);
+      device.AddFeature(CommonUsages.trackingState, () => InputTrackingState.Position | InputTrackingState.Rotation);
+      device.AddFeature(CommonUsages.devicePosition, () => controller?.position ?? Vector3.zero);
+      device.AddFeature(CommonUsages.deviceRotation, () => controller?.rotation ?? Quaternion.identity); 
+      device.AddFeature(CommonUsages.trigger, () => controller?.trigger ?? 0);
+      device.AddFeature(CommonUsages.grip, () => controller?.squeeze ?? 0);
+      device.AddFeature(CommonUsages.secondary2DAxis, () => controller != null ? new Vector2(controller.thumbstickX, controller.thumbstickY) : Vector2.zero);
+      device.AddFeature(CommonUsages.primary2DAxis, () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
+      return device;
     }
 
     public override void Stop()
@@ -60,6 +89,8 @@ namespace WebXR
       _running = false;
       Instance = null;
       SubsystemAPI.UnRegisterInputDevice(headset);
+      SubsystemAPI.UnRegisterInputDevice(controllerLeft);
+      SubsystemAPI.UnRegisterInputDevice(controllerRight);
     }
 
     protected override void OnDestroy()
@@ -112,7 +143,7 @@ namespace WebXR
       }
       UpdateXRCameras();
       bool hasHandsData = false;
-      if (OnHandUpdate != null && this.xrState != WebXRState.NORMAL)
+      if (this.xrState != WebXRState.NORMAL)
       {
         if (GetHandFromHandsArray(0, ref leftHand))
         {
@@ -127,7 +158,7 @@ namespace WebXR
         hasHandsData = leftHand.enabled || rightHand.enabled;
       }
 
-      if (!hasHandsData && OnControllerUpdate != null && this.xrState != WebXRState.NORMAL)
+      if (!hasHandsData && this.xrState != WebXRState.NORMAL)
       {
         if (GetGamepadFromControllersArray(0, ref controller1))
         {
@@ -151,7 +182,7 @@ namespace WebXR
 
     private void UpdateXRCameras()
     {
-      if (OnHeadsetUpdate != null && this.xrState != WebXRState.NORMAL)
+      if (this.xrState != WebXRState.NORMAL)
       {
         GetMatrixFromSharedArray(0, ref leftProjectionMatrix);
         GetMatrixFromSharedArray(16, ref rightProjectionMatrix);

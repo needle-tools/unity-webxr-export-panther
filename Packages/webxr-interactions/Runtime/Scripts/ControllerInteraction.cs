@@ -63,20 +63,20 @@ namespace WebXR.Interactions
         }
       }
 #endif
-      SetControllerVisible(false);
-      SetHandJointsVisible(false);
+      // SetControllerVisible(false);
+      // SetHandJointsVisible(false);
     }
 
     private void OnEnable()
     {
-      if (controller.isHandActive)
-      {
-        SetHandJointsVisible(true);
-      }
-      else if (controller.isControllerActive)
-      {
-        SetControllerVisible(true);
-      }
+      // if (controller.isHandActive)
+      // {
+      //   SetHandJointsVisible(true);
+      // }
+      // else if (controller.isControllerActive)
+      // {
+      //   SetControllerVisible(true);
+      // }
       controller.OnControllerActive += SetControllerVisible;
       controller.OnHandActive += SetHandJointsVisible;
       controller.OnHandUpdate += OnHandUpdate;
