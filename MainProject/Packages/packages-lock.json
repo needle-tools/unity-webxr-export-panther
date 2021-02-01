@@ -13,9 +13,9 @@
       "url": "https://package.openupm.com"
     },
     "com.de-panther.webxr": {
-      "version": "file:webxr",
+      "version": "file:../../Packages/webxr",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.unity.xr.management": "3.2.13"
       }
@@ -31,11 +31,25 @@
       "url": "https://package.openupm.com"
     },
     "com.de-panther.webxr-interactions": {
-      "version": "file:webxr-interactions",
+      "version": "file:../../Packages/webxr-interactions",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {
         "com.de-panther.webxr": "0.6.0-preview"
+      }
+    },
+    "com.needle.weaver": {
+      "version": "file:../../../../../../package",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.needle.weaver.webxr": {
+      "version": "file:../../../../package",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.needle.weaver": "0.0.1-preview"
       }
     },
     "com.unity.ext.nunit": {
@@ -105,11 +119,12 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.ui": "1.0.0"
+        "com.unity.modules.ui": "1.0.0",
+        "com.unity.modules.imgui": "1.0.0"
       }
     },
     "com.unity.xr.legacyinputhelpers": {
-      "version": "2.1.4",
+      "version": "2.1.6",
       "depth": 1,
       "source": "registry",
       "dependencies": {},

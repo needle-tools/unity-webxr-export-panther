@@ -11,6 +11,10 @@
   ],
   "dependencies": {
     "com.de-panther.webxr-input-profiles-loader": "0.3.1",
+    "com.de-panther.webxr" : "file:../../Packages/webxr",
+    "com.de-panther.webxr-interactions" : "file:../../Packages/webxr-interactions",
+    "com.needle.weaver.webxr" : "file:../../../../package",
+    "com.needle.weaver" : "file:../../../../../../package",
     "com.unity.ide.rider": "2.0.5",
     "com.unity.ide.vscode": "1.2.3",
     "com.unity.test-framework": "1.1.16",
