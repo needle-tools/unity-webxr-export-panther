@@ -128,24 +128,24 @@ namespace WebXR
         Vector3 rightPosition)
     {
 
-      // if (xrState == WebXRState.VR)
-      // {
+      if (xrState == WebXRState.VR)
+      {
       //   cameraL.transform.localPosition = leftPosition;
       //   cameraL.transform.localRotation = leftRotation;
-      //   cameraL.projectionMatrix = leftProjectionMatrix;
+      cameraL.projectionMatrix = leftProjectionMatrix;
       //   cameraR.transform.localPosition = rightPosition;
       //   cameraR.transform.localRotation = rightRotation;
-      //   cameraR.projectionMatrix = rightProjectionMatrix;
-      // }
-      // else if (xrState == WebXRState.AR)
-      // {
-      //   cameraARL.transform.localPosition = leftPosition;
-      //   cameraARL.transform.localRotation = leftRotation;
-      //   cameraARL.projectionMatrix = leftProjectionMatrix;
-      //   cameraARR.transform.localPosition = rightPosition;
-      //   cameraARR.transform.localRotation = rightRotation;
-      //   cameraARR.projectionMatrix = rightProjectionMatrix;
-      // }
+      cameraR.projectionMatrix = rightProjectionMatrix;
+      }
+      else if (xrState == WebXRState.AR)
+      {
+        cameraARL.transform.localPosition = leftPosition;
+        cameraARL.transform.localRotation = leftRotation;
+        cameraARL.projectionMatrix = leftProjectionMatrix;
+        cameraARR.transform.localPosition = rightPosition;
+        cameraARR.transform.localRotation = rightRotation;
+        cameraARR.projectionMatrix = rightProjectionMatrix;
+      }
     }
   }
 }
