@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e298431e08d14d41b1bd0e7d1df03ffe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PatchOnBuild: 0
+  PatchOnBuild: 1
   DisabledPatches: []

@@ -1,8 +1,10 @@
 {
     "name": "WebXR",
+    "rootNamespace": "",
     "references": [
         "Unity.XR.Management",
-        "Unity.Subsystem.Registration"
+        "Unity.Subsystem.Registration",
+        "needle.weaver.webxr"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

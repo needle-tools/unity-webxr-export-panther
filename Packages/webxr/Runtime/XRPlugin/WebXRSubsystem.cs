@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using AOT;
+using needle.weaver.webxr;
 using UnityEngine;
 
 namespace WebXR
@@ -26,6 +27,8 @@ namespace WebXR
       else Debug.Log("Failed registering " + nameof(WebXRSubsystemDescriptor));
     }
 
+    private MockInputDevice headset;
+
     public override void Start()
     {
       if (running) return;
@@ -33,6 +36,21 @@ namespace WebXR
       _running = true;
       Instance = this;
       InternalStart();
+      
+      if (headset == null)
+      {
+        headset = MockDeviceBuilder.CreateHeadset(
+          () => true,
+          () => centerPosition,
+          () => centerRotation,
+          null,
+          () => leftPosition,
+          () => leftRotation,
+          () => rightPosition,
+          () => rightRotation
+          );
+      }
+      SubsystemAPI.RegisterInputDevice(headset);
     }
 
     public override void Stop()
@@ -41,6 +59,7 @@ namespace WebXR
       Debug.Log("Stop " + nameof(WebXRSubsystem));
       _running = false;
       Instance = null;
+      SubsystemAPI.UnRegisterInputDevice(headset);
     }
 
     protected override void OnDestroy()
@@ -141,6 +160,9 @@ namespace WebXR
         GetVector3FromSharedArray(40, ref leftPosition);
         GetVector3FromSharedArray(43, ref rightPosition);
 
+        centerPosition = Vector3.Lerp(leftPosition, rightPosition, .5f);
+        centerRotation = Quaternion.Lerp(leftRotation, rightRotation, .5f);
+        
         OnHeadsetUpdate?.Invoke(
             leftProjectionMatrix,
             rightProjectionMatrix,
@@ -232,8 +254,10 @@ namespace WebXR
     // Cameras calculations helpers
     private Matrix4x4 leftProjectionMatrix = new Matrix4x4();
     private Matrix4x4 rightProjectionMatrix = new Matrix4x4();
+    private Vector3 centerPosition;
     private Vector3 leftPosition = new Vector3();
     private Vector3 rightPosition = new Vector3();
+    private Quaternion centerRotation;
     private Quaternion leftRotation = Quaternion.identity;
     private Quaternion rightRotation = Quaternion.identity;
 
