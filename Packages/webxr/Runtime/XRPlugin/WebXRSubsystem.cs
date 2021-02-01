@@ -54,31 +54,34 @@ namespace WebXR
           );
       }
       if(controllerRight == null) 
-        controllerRight = CreateController(XRNode.RightHand, controller1);
+        controllerRight = CreateController(XRNode.RightHand, controller1, InputDeviceCharacteristics.Right);
       if (controllerLeft == null)
-        controllerLeft = CreateController(XRNode.LeftHand, controller2);
+        controllerLeft = CreateController(XRNode.LeftHand, controller2, InputDeviceCharacteristics.Left);
       
       SubsystemAPI.RegisterInputDevice(headset);
       SubsystemAPI.RegisterInputDevice(controllerLeft);
       SubsystemAPI.RegisterInputDevice(controllerRight);
     }
 
-    private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller)
+    private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
     {
       var device = new MockInputDevice("<XRController>", node)
       {
         SerialNumber = "1.0.0",
         Manufacturer = "Needle",
-        DeviceCharacteristics = InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand
+        DeviceCharacteristics = InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | side
       };
       device.AddFeature(CommonUsages.isTracked, () => controller?.enabled ?? false);
       device.AddFeature(CommonUsages.trackingState, () => InputTrackingState.Position | InputTrackingState.Rotation);
       device.AddFeature(CommonUsages.devicePosition, () => controller?.position ?? Vector3.zero);
-      device.AddFeature(CommonUsages.deviceRotation, () => controller?.rotation ?? Quaternion.identity); 
+      device.AddFeature(CommonUsages.deviceRotation, () => controller?.rotation * Quaternion.Euler(90,0,0) ?? Quaternion.identity); 
       device.AddFeature(CommonUsages.trigger, () => controller?.trigger ?? 0);
       device.AddFeature(CommonUsages.grip, () => controller?.squeeze ?? 0);
-      device.AddFeature(CommonUsages.secondary2DAxis, () => controller != null ? new Vector2(controller.thumbstickX, controller.thumbstickY) : Vector2.zero);
-      device.AddFeature(CommonUsages.primary2DAxis, () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
+      device.AddFeature(CommonUsages.secondary2DAxis, () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
+      device.AddFeature(CommonUsages.primary2DAxis, () => controller != null ? new Vector2(controller.thumbstickX, controller.thumbstickY) : Vector2.zero);
+      device.AddFeature(CommonUsages.primary2DAxisClick, () => controller?.thumbstick > .5f);
+      device.AddFeature(CommonUsages.primaryButton, () => controller?.buttonA > .5f);
+      device.AddFeature(CommonUsages.secondaryButton, () => controller?.buttonB > .5f);
       return device;
     }
 
