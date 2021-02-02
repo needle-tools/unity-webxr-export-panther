@@ -29,6 +29,7 @@ namespace WebXR
         protected virtual void OnEnable()
         {
             EnsureSubsystem();
+            if (!PlatformSupported) enabled = false;
         }
 
         private void EnsureSubsystem()
@@ -37,12 +38,16 @@ namespace WebXR
             subsystem = GetActiveSubsystemInstance();
         }
 
+        protected virtual bool PlatformSupported => true;
+
         /// <summary>
         /// Returns the active <c>TSubsystem</c> instance if present, otherwise returns null.
         /// </summary>
         /// <returns>The active subsystem instance, or `null` if there isn't one.</returns>
         protected TSubsystem GetActiveSubsystemInstance()
         {
+            if (!PlatformSupported) return null;
+            
             TSubsystem activeSubsystem = null;
 
             // Query the currently active loader for the created subsystem, if one exists.

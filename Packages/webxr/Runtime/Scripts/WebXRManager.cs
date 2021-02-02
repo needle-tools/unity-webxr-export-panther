@@ -59,6 +59,7 @@ namespace WebXR
           subsystem.StopViewerHitTest();
       }
       
+#if !UNITY_EDITOR && UNITY_WEBGL
       protected override void Awake()
       {
           base.Awake();
@@ -70,5 +71,8 @@ namespace WebXR
       {
           subsystem.OnUpdate();
       }
+      #else
+      protected override bool PlatformSupported => false;
+#endif
   }
 }
