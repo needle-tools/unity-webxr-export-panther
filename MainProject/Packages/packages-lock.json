@@ -1,8 +1,8 @@
 {
   "dependencies": {
     "com.atteneder.gltfast": {
-      "version": "2.5.0",
-      "depth": 1,
+      "version": "2.6.0",
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.modules.jsonserialize": "1.0.0",
@@ -13,9 +13,9 @@
       "url": "https://package.openupm.com"
     },
     "com.de-panther.webxr": {
-      "version": "file:../../Packages/webxr",
+      "version": "file:webxr",
       "depth": 0,
-      "source": "local",
+      "source": "embedded",
       "dependencies": {
         "com.unity.xr.management": "3.2.13"
       }
@@ -31,9 +31,9 @@
       "url": "https://package.openupm.com"
     },
     "com.de-panther.webxr-interactions": {
-      "version": "file:../../Packages/webxr-interactions",
+      "version": "file:webxr-interactions",
       "depth": 0,
-      "source": "local",
+      "source": "embedded",
       "dependencies": {
         "com.de-panther.webxr": "0.6.0-preview"
       }
@@ -91,7 +91,7 @@
     },
     "com.unity.mathematics": {
       "version": "1.2.1",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -101,6 +101,43 @@
       "depth": 1,
       "source": "registry",
       "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.render-pipelines.core": {
+      "version": "10.2.2",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.render-pipelines.universal": {
+      "version": "10.2.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.mathematics": "1.1.0",
+        "com.unity.render-pipelines.core": "10.2.2",
+        "com.unity.shadergraph": "10.2.2"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.searcher": {
+      "version": "4.3.1",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.shadergraph": {
+      "version": "10.2.2",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.render-pipelines.core": "10.2.2",
+        "com.unity.searcher": "4.3.1"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.subsystemregistration": {
@@ -136,6 +173,12 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "com.unity.xr-interaction-toolkit-example": {
+      "version": "file:../../Submodules/XR-Interaction-Toolkit-Examples/VR/Assets/package",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
     },
     "com.unity.xr.interaction.toolkit": {
       "version": "1.0.0-pre.2",
