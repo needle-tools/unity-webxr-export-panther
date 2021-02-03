@@ -40,28 +40,42 @@ namespace WebXR
       {
         case WebXRState.AR:
           cameraMain.enabled = false;
-          cameraL.enabled = false;
-          cameraR.enabled = false;
-          cameraARL.enabled = viewsCount > 0;
-          cameraARL.rect = leftRect;
-          cameraARR.enabled = viewsCount > 1;
-          cameraARR.rect = rightRect;
+          if(cameraL)
+            cameraL.enabled = false;
+          if(cameraR)
+            cameraR.enabled = false;
+          if (cameraARL)
+          {
+            cameraARL.enabled = viewsCount > 0;
+            cameraARL.rect = leftRect;
+          }
+
+          if (cameraARL)
+          {
+            cameraARR.enabled = viewsCount > 1;
+            cameraARR.rect = rightRect;
+          }
+
           break;
         case WebXRState.VR:
-          cameraMain.enabled = false;
-          cameraL.enabled = viewsCount > 0;
-          cameraL.rect = leftRect;
-          cameraR.enabled = viewsCount > 1;
-          cameraR.rect = rightRect;
-          cameraARL.enabled = false;
-          cameraARR.enabled = false;
+          // cameraMain.enabled = false;
+          // cameraL.enabled = viewsCount > 0;
+          // cameraL.rect = leftRect;
+          // cameraR.enabled = viewsCount > 1;
+          // cameraR.rect = rightRect;
+          // cameraARL.enabled = false;
+          // cameraARR.enabled = false;
           break;
         case WebXRState.NORMAL:
           cameraMain.enabled = true;
-          cameraL.enabled = false;
-          cameraR.enabled = false;
-          cameraARL.enabled = false;
-          cameraARR.enabled = false;
+          if(cameraL)
+            cameraL.enabled = false;
+          if(cameraR)
+            cameraR.enabled = false;
+          if(cameraARL)
+            cameraARL.enabled = false;
+          if(cameraARR)
+            cameraARR.enabled = false;
           break;
       }
     }
@@ -130,12 +144,12 @@ namespace WebXR
 
       if (xrState == WebXRState.VR)
       {
-      //   cameraL.transform.localPosition = leftPosition;
-      //   cameraL.transform.localRotation = leftRotation;
-      cameraL.projectionMatrix = leftProjectionMatrix;
-      //   cameraR.transform.localPosition = rightPosition;
-      //   cameraR.transform.localRotation = rightRotation;
-      cameraR.projectionMatrix = rightProjectionMatrix;
+        //   cameraL.transform.localPosition = leftPosition;
+        //   cameraL.transform.localRotation = leftRotation;
+        // cameraL.projectionMatrix = leftProjectionMatrix;
+        //   cameraR.transform.localPosition = rightPosition;
+        //   cameraR.transform.localRotation = rightRotation;
+        // cameraR.projectionMatrix = rightProjectionMatrix;
       }
       else if (xrState == WebXRState.AR)
       {

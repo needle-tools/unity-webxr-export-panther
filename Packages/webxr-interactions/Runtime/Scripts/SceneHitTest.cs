@@ -21,7 +21,9 @@ namespace WebXR.Interactions
       originPosition = originTransform.localPosition;
       originRotation = originTransform.localRotation;
       WebXRManager.OnXRChange += HandleOnXRChange;
-      arCameraTransform = FindObjectOfType<WebXRCamera>().GetCamera(WebXRCamera.CameraID.LeftAR).transform;
+      var cam = FindObjectOfType<WebXRCamera>().GetCamera(WebXRCamera.CameraID.LeftAR);
+      if(cam)
+        arCameraTransform = cam.transform;
     }
 
     void OnDisable()
