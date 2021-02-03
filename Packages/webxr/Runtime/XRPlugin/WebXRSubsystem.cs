@@ -4,8 +4,6 @@ using AOT;
 using needle.weaver.webxr;
 using UnityEngine;
 using UnityEngine.XR;
-using WebXR;
-using WebXRSubsystem = needle.weaver.webxr.WebXRSubsystem;
 
 namespace WebXR
 {
@@ -40,6 +38,8 @@ namespace WebXR
       Instance = this;
       InternalStart();
       
+      
+      
       if (headset == null)
       {
         headset = MockDeviceBuilder.CreateHeadset(
@@ -61,6 +61,30 @@ namespace WebXR
       SubsystemAPI.RegisterInputDevice(headset);
       SubsystemAPI.RegisterInputDevice(controllerLeft);
       SubsystemAPI.RegisterInputDevice(controllerRight);
+      XRDisplaySubsystem_Patch.Instance.Start();
+    }
+
+    public override void Stop()
+    {
+      if (!_running) return;
+      Debug.Log("Stop " + nameof(WebXRSubsystem));
+      _running = false;
+      Instance = null;
+      SubsystemAPI.UnRegisterInputDevice(headset);
+      SubsystemAPI.UnRegisterInputDevice(controllerLeft);
+      SubsystemAPI.UnRegisterInputDevice(controllerRight);
+      XRDisplaySubsystem_Patch.Instance.Stop();
+    }
+
+    protected override void OnDestroy()
+    {
+      if (!running) return;
+      Debug.Log("Destroy " + nameof(WebXRSubsystem));
+      _running = false;
+      Instance = null;
+      
+      XRDisplaySubsystem_Patch.Instance.Destroy();
+      XRDisplaySubsystem_Patch.Instance.Destroy();
     }
 
     private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
@@ -83,25 +107,6 @@ namespace WebXR
       device.AddFeature(CommonUsages.primaryButton, () => controller?.buttonA > .5f);
       device.AddFeature(CommonUsages.secondaryButton, () => controller?.buttonB > .5f);
       return device;
-    }
-
-    public override void Stop()
-    {
-      if (!_running) return;
-      Debug.Log("Stop " + nameof(WebXRSubsystem));
-      _running = false;
-      Instance = null;
-      SubsystemAPI.UnRegisterInputDevice(headset);
-      SubsystemAPI.UnRegisterInputDevice(controllerLeft);
-      SubsystemAPI.UnRegisterInputDevice(controllerRight);
-    }
-
-    protected override void OnDestroy()
-    {
-      if (!running) return;
-      Debug.Log("Destroy " + nameof(WebXRSubsystem));
-      _running = false;
-      Instance = null;
     }
 
     private void UpdateControllersOnEnd()
@@ -196,6 +201,9 @@ namespace WebXR
 
         centerPosition = Vector3.Lerp(leftPosition, rightPosition, .5f);
         centerRotation = Quaternion.Lerp(leftRotation, rightRotation, .5f);
+
+        XRDisplaySubsystem_Patch.Instance.ProjectionLeft = leftProjectionMatrix;
+        XRDisplaySubsystem_Patch.Instance.ProjectionRight = rightProjectionMatrix;
         
         OnHeadsetUpdate?.Invoke(
             leftProjectionMatrix,
