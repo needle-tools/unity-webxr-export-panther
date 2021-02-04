@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-#if UNITY_WEBGL && !UNITY_EDITOR
-using System.Runtime.InteropServices;
-#endif
+using needle.weaver.webxr;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Management;
@@ -10,63 +8,56 @@ namespace WebXR
 {
   public class WebXRLoader : XRLoaderHelper
   {
-    static readonly List<WebXRSubsystemDescriptor> sampleSubsystemDescriptors = new List<WebXRSubsystemDescriptor>();
-    static readonly List<XRDisplaySubsystemDescriptor> displaySubsystemDescriptors = new List<XRDisplaySubsystemDescriptor>();
-    static readonly List<XRInputSubsystemDescriptor> inputSubsystemDescriptors = new List<XRInputSubsystemDescriptor>();
-    public WebXRSubsystem WebXRSubsystem => GetLoadedSubsystem<WebXRSubsystem>();
-    public XRDisplaySubsystem XRDisplaySubsystem => GetLoadedSubsystem<XRDisplaySubsystem>();
-    public XRInputSubsystem XRInputSubsystem => GetLoadedSubsystem<XRInputSubsystem>();
+    private static readonly List<WebXRSubsystemDescriptor> subsystemDescriptors = new List<WebXRSubsystemDescriptor>();
+    private static readonly List<XRDisplaySubsystemDescriptor> displaySubsystemDescriptors = new List<XRDisplaySubsystemDescriptor>();
+    private static readonly List<XRInputSubsystemDescriptor> inputSubsystemDescriptors = new List<XRInputSubsystemDescriptor>();
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    public static extern void SetWebXRSettings(string settingsJson);
-#endif
+    private WebXRSubsystem WebXRSubsystem => GetLoadedSubsystem<WebXRSubsystem>();
+    private XRInputSubsystem XRInputSubsystem => GetLoadedSubsystem<XRInputSubsystem>();
+    private XRDisplaySubsystem XRDisplaySubsystem => GetLoadedSubsystem<XRDisplaySubsystem>();
 
-    WebXRSettings GetSettings()
-    {
-      WebXRSettings settings = null;
-      // When running in the Unity Editor, we have to load user's customization of configuration data directly from
-      // EditorBuildSettings. At runtime, we need to grab it from the static instance field instead.
-#if UNITY_EDITOR
-      UnityEditor.EditorBuildSettings.TryGetConfigObject<WebXRSettings>("WebXR.Settings", out settings);
-#elif UNITY_WEBGL
-      settings = WebXRSettings.Instance;
-#endif
-      return settings;
-    }
+    internal static XRDisplaySubsystem DisplaySubsystem { get; private set; }
 
     public override bool Initialize()
     {
-      WebXRSettings settings = GetSettings();
+      CreateSubsystem<WebXRSubsystemDescriptor, WebXRSubsystem>(subsystemDescriptors, typeof(WebXRSubsystem).FullName);
+      CreateSubsystem<XRDisplaySubsystemDescriptor, XRDisplaySubsystem>(displaySubsystemDescriptors, XRDisplaySubsystem_Patch.Id);
+      CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(inputSubsystemDescriptors, XRInputSubsystem_Patch.Id);
+      return WebXRSubsystem != null;
+    }
+    
+    public override bool Start()
+    {
+      var settings = WebXRSettings.GetSettings();
       if (settings != null)
       {
         Debug.Log($"Got WebXRSettings");
 #if UNITY_WEBGL && !UNITY_EDITOR
-        SetWebXRSettings(settings.ToJson());
+        Native.SetWebXRSettings(settings.ToJson());
 #endif
         Debug.Log($"Sent WebXRSettings");
       }
 
-      CreateSubsystem<WebXRSubsystemDescriptor, WebXRSubsystem>(sampleSubsystemDescriptors, typeof(WebXRSubsystem).FullName);
-      return WebXRSubsystem != null;
-    }
-
-
-    public override bool Start()
-    {
+      DisplaySubsystem = XRDisplaySubsystem;
       WebXRSubsystem.Start();
+      // XRDisplaySubsystem.Start();
+      XRInputSubsystem.Start();
       return true;
     }
 
     public override bool Stop()
     {
       WebXRSubsystem.Stop();
+      XRDisplaySubsystem.Stop();
+      XRInputSubsystem.Stop();
       return base.Stop();
     }
 
     public override bool Deinitialize()
     {
       WebXRSubsystem.Destroy();
+      XRDisplaySubsystem.Destroy();
+      XRInputSubsystem.Destroy();
       return base.Deinitialize();
     }
   }

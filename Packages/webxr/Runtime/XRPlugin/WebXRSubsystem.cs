@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using AOT;
 using needle.weaver.webxr;
 using UnityEngine;
@@ -7,8 +6,6 @@ using UnityEngine.XR;
 
 namespace WebXR
 {
-  // TODO: we need an XRInputSubsystem implementation - this can only be done via native code
-
   public class WebXRSubsystemDescriptor : SubsystemDescriptor<WebXRSubsystem>
   {
   }
@@ -23,12 +20,12 @@ namespace WebXR
         id = typeof(WebXRSubsystem).FullName,
         subsystemImplementationType = typeof(WebXRSubsystem)
       });
-      if (res)
-        Debug.Log("Registered " + nameof(WebXRSubsystemDescriptor));
-      else Debug.Log("Failed registering " + nameof(WebXRSubsystemDescriptor));
+      #if DEVELOPMENT_BUILD
+      if (res) Debug.Log("Registered " + nameof(WebXRSubsystemDescriptor));
+      else Debug.LogError("Failed registering " + nameof(WebXRSubsystemDescriptor));
+      #endif
     }
 
-    private MockInputDevice headset, controllerLeft, controllerRight;
 
     public override void Start()
     {
@@ -38,8 +35,35 @@ namespace WebXR
       Instance = this;
       InternalStart();
       
-      
-      
+      CreateInputDevices();
+      headset.Connect();
+      controllerLeft.Connect();
+      controllerRight.Connect();
+    }
+
+    public override void Stop()
+    {
+      if (!_running) return;
+      Debug.Log("Stop " + nameof(WebXRSubsystem));
+      _running = false;
+      Instance = null;
+      headset.Disconnect();
+      controllerLeft.Disconnect();
+      controllerRight.Disconnect();
+    }
+
+    protected override void OnDestroy()
+    {
+      if (!running) return;
+      Debug.Log("Destroy " + nameof(WebXRSubsystem));
+      _running = false;
+      Instance = null;
+    }
+
+    private MockInputDevice headset, controllerLeft, controllerRight;
+
+    private void CreateInputDevices()
+    {
       if (headset == null)
       {
         headset = MockDeviceBuilder.CreateHeadset(
@@ -51,42 +75,15 @@ namespace WebXR
           () => leftRotation,
           () => rightPosition,
           () => rightRotation
-          );
+        );
       }
       if(controllerRight == null) 
         controllerRight = CreateController(XRNode.RightHand, controller1, InputDeviceCharacteristics.Right);
       if (controllerLeft == null)
         controllerLeft = CreateController(XRNode.LeftHand, controller2, InputDeviceCharacteristics.Left);
-      
-      SubsystemAPI.RegisterInputDevice(headset);
-      SubsystemAPI.RegisterInputDevice(controllerLeft);
-      SubsystemAPI.RegisterInputDevice(controllerRight);
-      XRDisplaySubsystem_Patch.Instance.Start();
-    }
 
-    public override void Stop()
-    {
-      if (!_running) return;
-      Debug.Log("Stop " + nameof(WebXRSubsystem));
-      _running = false;
-      Instance = null;
-      SubsystemAPI.UnRegisterInputDevice(headset);
-      SubsystemAPI.UnRegisterInputDevice(controllerLeft);
-      SubsystemAPI.UnRegisterInputDevice(controllerRight);
-      XRDisplaySubsystem_Patch.Instance.Stop();
     }
-
-    protected override void OnDestroy()
-    {
-      if (!running) return;
-      Debug.Log("Destroy " + nameof(WebXRSubsystem));
-      _running = false;
-      Instance = null;
-      
-      XRDisplaySubsystem_Patch.Instance.Destroy();
-      XRDisplaySubsystem_Patch.Instance.Destroy();
-    }
-
+    
     private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
     {
       var device = new MockInputDevice("<XRController>", node)
@@ -229,46 +226,13 @@ namespace WebXR
       Native.InitXRSharedArray(sharedArray, sharedArray.Length);
       Native.ListenWebXRData();
     }
-
-    private static class Native
-    {
-      [DllImport("__Internal")]
-      public static extern void InitXRSharedArray(float[] array, int length);
-
-      [DllImport("__Internal")]
-      public static extern void InitControllersArray(float[] array, int length);
-
-      [DllImport("__Internal")]
-      public static extern void InitHandsArray(float[] array, int length);
-
-      [DllImport("__Internal")]
-      public static extern void InitViewerHitTestPoseArray(float[] array, int length);
-
-      [DllImport("__Internal")]
-      public static extern void ToggleViewerHitTest();
-
-      [DllImport("__Internal")]
-      public static extern void ControllerPulse(int controller, float intensity, float duration);
-
-      [DllImport("__Internal")]
-      public static extern void ListenWebXRData();
-
-      [DllImport("__Internal")]
-      public static extern void set_webxr_events(Action<int, float, float, float, float, float, float, float, float> on_start_ar,
-          Action<int, float, float, float, float, float, float, float, float> on_start_vr,
-          Action on_end_xr,
-          Action<string> on_xr_capabilities,
-          Action<string> on_input_profiles);
-    }
-
+    
     internal WebXRState xrState = WebXRState.NORMAL;
 
     public delegate void XRCapabilitiesUpdate(WebXRDisplayCapabilities capabilities);
-
     public static event XRCapabilitiesUpdate OnXRCapabilitiesUpdate;
 
     public delegate void XRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect);
-
     public static event XRChange OnXRChange;
 
     public delegate void HeadsetUpdate(
@@ -278,56 +242,44 @@ namespace WebXR
         Quaternion rightRotation,
         Vector3 leftPosition,
         Vector3 rightPosition);
-
     public static event HeadsetUpdate OnHeadsetUpdate;
 
     public delegate void ControllerUpdate(WebXRControllerData controllerData);
-
     public static event ControllerUpdate OnControllerUpdate;
 
     public delegate void HandUpdate(WebXRHandData handData);
-
     public static event HandUpdate OnHandUpdate;
 
     public delegate void HitTestUpdate(WebXRHitPoseData hitPoseData);
-
     public static event HitTestUpdate OnViewerHitTestUpdate;
 
     // Cameras calculations helpers
-    private Matrix4x4 leftProjectionMatrix = new Matrix4x4();
-    private Matrix4x4 rightProjectionMatrix = new Matrix4x4();
-    private Vector3 centerPosition;
-    private Vector3 leftPosition = new Vector3();
-    private Vector3 rightPosition = new Vector3();
-    private Quaternion centerRotation;
-    private Quaternion leftRotation = Quaternion.identity;
-    private Quaternion rightRotation = Quaternion.identity;
+    private Matrix4x4 leftProjectionMatrix, rightProjectionMatrix;
+    private Vector3 centerPosition, leftPosition, rightPosition;
+    private Quaternion centerRotation, leftRotation, rightRotation;
 
     // Shared array which we will load headset data in from webxr.jslib
     // Array stores 2 matrices, each 16 values, 2 Quaternions and 2 Vector3, stored linearly.
-    float[] sharedArray = new float[(2 * 16) + (2 * 7)];
+    private readonly float[] sharedArray = new float[(2 * 16) + (2 * 7)];
 
     // Shared array for controllers data
-    float[] controllersArray = new float[2 * 20];
+    private readonly float[] controllersArray = new float[2 * 20];
 
     // Shared array for hands data
-    float[] handsArray = new float[2 * (25 * 9 + 5)];
+    private readonly float[] handsArray = new float[2 * (25 * 9 + 5)];
 
     // Shared array for hit-test pose data
-    float[] viewerHitTestPoseArray = new float[9];
+    private readonly float[] viewerHitTestPoseArray = new float[9];
 
-    bool viewerHitTestOn = false;
+    private bool viewerHitTestOn = false;
 
     private bool switchToEnd = false;
 
     private WebXRHandData leftHand = new WebXRHandData();
     private WebXRHandData rightHand = new WebXRHandData();
-
     private WebXRControllerData controller1 = new WebXRControllerData();
     private WebXRControllerData controller2 = new WebXRControllerData();
-
     private WebXRHitPoseData viewerHitTestPose = new WebXRHitPoseData();
-
     private WebXRDisplayCapabilities capabilities = new WebXRDisplayCapabilities();
 
     // Handles WebXR capabilities from browser
@@ -345,23 +297,33 @@ namespace WebXR
       Instance.OnInputProfiles(controllersProfiles);
     }
 
-    public void OnXRCapabilities(WebXRDisplayCapabilities cap)
+    private void OnXRCapabilities(WebXRDisplayCapabilities cap)
     {
       this.capabilities = cap;
       OnXRCapabilitiesUpdate?.Invoke(cap);
     }
 
-    public void OnInputProfiles(WebXRControllersProfiles controllersProfiles)
+    private void OnInputProfiles(WebXRControllersProfiles controllersProfiles)
     {
       controller1.profiles = controllersProfiles.conrtoller1;
       controller2.profiles = controllersProfiles.conrtoller2;
     }
 
-    public void setXrState(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
+    private void setXrState(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
     {
       this.xrState = state;
       viewerHitTestOn = false;
       OnXRChange?.Invoke(state, viewsCount, leftRect, rightRect);
+
+      switch (this.xrState)
+      {
+        case WebXRState.VR:
+          WebXRLoader.DisplaySubsystem.Start();
+          break;
+        case WebXRState.NORMAL:
+          WebXRLoader.DisplaySubsystem.Stop();
+          break;
+      }
     }
 
     // received start AR from WebXR browser
@@ -417,7 +379,7 @@ namespace WebXR
       Native.ControllerPulse((int)hand, intensity, duration);
     }
 
-    void GetMatrixFromSharedArray(int index, ref Matrix4x4 matrix)
+    private void GetMatrixFromSharedArray(int index, ref Matrix4x4 matrix)
     {
       for (int i = 0; i < 16; i++)
       {
@@ -425,7 +387,7 @@ namespace WebXR
       }
     }
 
-    void GetQuaternionFromSharedArray(int index, ref Quaternion quaternion)
+    private void GetQuaternionFromSharedArray(int index, ref Quaternion quaternion)
     {
       quaternion.x = sharedArray[index];
       quaternion.y = sharedArray[index + 1];
@@ -433,14 +395,14 @@ namespace WebXR
       quaternion.w = sharedArray[index + 3];
     }
 
-    void GetVector3FromSharedArray(int index, ref Vector3 vec3)
+    private void GetVector3FromSharedArray(int index, ref Vector3 vec3)
     {
       vec3.x = sharedArray[index];
       vec3.y = sharedArray[index + 1];
       vec3.z = sharedArray[index + 2];
     }
 
-    bool GetGamepadFromControllersArray(int controllerIndex, ref WebXRControllerData newControllerData)
+    private bool GetGamepadFromControllersArray(int controllerIndex, ref WebXRControllerData newControllerData)
     {
       int arrayPosition = controllerIndex * 20;
       int frameNumber = (int)controllersArray[arrayPosition++];
@@ -473,7 +435,7 @@ namespace WebXR
       return true;
     }
 
-    bool GetHandFromHandsArray(int handIndex, ref WebXRHandData handObject)
+    private bool GetHandFromHandsArray(int handIndex, ref WebXRHandData handObject)
     {
       int arrayPosition = handIndex * 230;
       int frameNumber = (int)handsArray[arrayPosition++];
@@ -504,7 +466,7 @@ namespace WebXR
       return true;
     }
 
-    bool GetHitTestPoseFromViewerHitTestPoseArray(ref WebXRHitPoseData hitPoseData)
+    private bool GetHitTestPoseFromViewerHitTestPoseArray(ref WebXRHitPoseData hitPoseData)
     {
       int arrayPosition = 0;
       int frameNumber = (int)viewerHitTestPoseArray[arrayPosition++];
@@ -523,7 +485,7 @@ namespace WebXR
       hitPoseData.position = new Vector3(viewerHitTestPoseArray[arrayPosition++], viewerHitTestPoseArray[arrayPosition++],
           viewerHitTestPoseArray[arrayPosition++]);
       hitPoseData.rotation = new Quaternion(viewerHitTestPoseArray[arrayPosition++], viewerHitTestPoseArray[arrayPosition++],
-          viewerHitTestPoseArray[arrayPosition++], viewerHitTestPoseArray[arrayPosition++]);
+          viewerHitTestPoseArray[arrayPosition++], viewerHitTestPoseArray[arrayPosition]);
       return true;
     }
   }

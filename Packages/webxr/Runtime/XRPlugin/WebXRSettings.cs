@@ -8,6 +8,18 @@ namespace WebXR
   [XRConfigurationData("WebXR", "WebXR.Settings")]
   public class WebXRSettings : ScriptableObject
   {
+    public static WebXRSettings GetSettings()
+    {
+      // When running in the Unity Editor, we have to load user's customization of configuration data directly from
+      // EditorBuildSettings. At runtime, we need to grab it from the static instance field instead.
+#if UNITY_EDITOR
+      UnityEditor.EditorBuildSettings.TryGetConfigObject<WebXRSettings>("WebXR.Settings", out var settings);
+#elif UNITY_WEBGL
+      var settings = WebXRSettings.Instance;
+#endif
+      return settings;
+    }
+    
     public enum ReferenceSpaceTypes
     {
       local = 1,
