@@ -17,6 +17,7 @@ namespace WebXR
     private XRDisplaySubsystem XRDisplaySubsystem => GetLoadedSubsystem<XRDisplaySubsystem>();
 
     internal static XRDisplaySubsystem DisplaySubsystem { get; private set; }
+    internal static XRInputSubsystem InputSubsystem { get; private set; }
 
     public override bool Initialize()
     {
@@ -39,9 +40,14 @@ namespace WebXR
       }
 
       DisplaySubsystem = XRDisplaySubsystem;
-      WebXRSubsystem.Start();
+      InputSubsystem = XRInputSubsystem;
+      
+      // if we start it here we get a black screen.
+      // Not sure why it works when we stop it after VR mode
       // XRDisplaySubsystem.Start();
+      // XRDisplaySubsystem_Patch.AttachDisplayBehaviour<RenderVR>();
       XRInputSubsystem.Start();
+      WebXRSubsystem.Start();
       return true;
     }
 

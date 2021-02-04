@@ -142,7 +142,7 @@ namespace WebXR
         Vector3 rightPosition)
     {
 
-      if (xrState == WebXRState.VR)
+      if (xrState == WebXRState.VR) 
       {
         //   cameraL.transform.localPosition = leftPosition;
         //   cameraL.transform.localRotation = leftRotation;

@@ -142,46 +142,26 @@ namespace WebXR
         switchToEnd = false;
         UpdateControllersOnEnd();
       }
-      if (this.xrState == WebXRState.NORMAL)
-      {
-        return;
-      }
+      if (this.xrState == WebXRState.NORMAL) return;
+      
       UpdateXRCameras();
-      bool hasHandsData = false;
+      var hasHandsData = false;
       if (this.xrState != WebXRState.NORMAL)
       {
-        if (GetHandFromHandsArray(0, ref leftHand))
-        {
-          OnHandUpdate?.Invoke(leftHand);
-        }
-
-        if (GetHandFromHandsArray(1, ref rightHand))
-        {
-          OnHandUpdate?.Invoke(rightHand);
-        }
-
+        if (GetHandFromHandsArray(0, ref leftHand)) OnHandUpdate?.Invoke(leftHand);
+        if (GetHandFromHandsArray(1, ref rightHand)) OnHandUpdate?.Invoke(rightHand);
         hasHandsData = leftHand.enabled || rightHand.enabled;
       }
 
       if (!hasHandsData && this.xrState != WebXRState.NORMAL)
       {
-        if (GetGamepadFromControllersArray(0, ref controller1))
-        {
-          OnControllerUpdate?.Invoke(controller1);
-        }
-
-        if (GetGamepadFromControllersArray(1, ref controller2))
-        {
-          OnControllerUpdate?.Invoke(controller2);
-        }
+        if (GetGamepadFromControllersArray(0, ref controller1)) OnControllerUpdate?.Invoke(controller1);
+        if (GetGamepadFromControllersArray(1, ref controller2)) OnControllerUpdate?.Invoke(controller2);
       }
 
       if (OnViewerHitTestUpdate != null && this.xrState == WebXRState.AR)
       {
-        if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose))
-        {
-          OnViewerHitTestUpdate?.Invoke(viewerHitTestPose);
-        }
+        if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose)) OnViewerHitTestUpdate?.Invoke(viewerHitTestPose);
       }
     }
 
@@ -318,9 +298,14 @@ namespace WebXR
       switch (this.xrState)
       {
         case WebXRState.VR:
+          XRDisplaySubsystem_Patch.AttachDisplayBehaviour<RenderVR>();
           WebXRLoader.DisplaySubsystem.Start();
+          WebXRLoader.InputSubsystem.Start();
+          headset.Connect();
           break;
         case WebXRState.NORMAL:
+          // headset.Disconnect();
+          // WebXRLoader.InputSubsystem.Stop();
           WebXRLoader.DisplaySubsystem.Stop();
           break;
       }

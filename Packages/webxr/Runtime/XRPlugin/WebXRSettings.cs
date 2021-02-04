@@ -14,10 +14,13 @@ namespace WebXR
       // EditorBuildSettings. At runtime, we need to grab it from the static instance field instead.
 #if UNITY_EDITOR
       UnityEditor.EditorBuildSettings.TryGetConfigObject<WebXRSettings>("WebXR.Settings", out var settings);
+      return settings;
 #elif UNITY_WEBGL
       var settings = WebXRSettings.Instance;
-#endif
       return settings;
+#else
+      return null;
+#endif
     }
     
     public enum ReferenceSpaceTypes
