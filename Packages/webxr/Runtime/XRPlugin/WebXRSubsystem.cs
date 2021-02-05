@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AOT;
 using needle.weaver.webxr;
+using Unity.XR.OpenVR;
 using UnityEngine;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.XR;
@@ -56,7 +57,7 @@ namespace WebXR
       controllerLeft.Connect();
       controllerRight.Connect();
       
-      InputSystem.EnableDevice(device);
+      // InputSystem.EnableDevice(device);
       
       PlayerLoopHelper.AddUpdateCallback(this.GetType(), this.OnUpdate, PlayerLoopHelper.Stages.PostLateUpdate);
       
@@ -72,7 +73,7 @@ namespace WebXR
       controllerLeft.Disconnect();
       controllerRight.Disconnect();
       
-      InputSystem.DisableDevice(device);
+      // InputSystem.DisableDevice(device);
       
       PlayerLoopHelper.RemoveUpdateDelegate(this.GetType(), this.OnUpdate);
     }
@@ -85,45 +86,40 @@ namespace WebXR
       Instance = null;
     }
 
-    private XRHMD device;
     private MockInputDevice headset, controllerLeft, controllerRight;
+    private readonly List<MockInputDevice> devices = new List<MockInputDevice>();
 
     private void CreateInputDevices()
     {
-      headset ??= MockDeviceBuilder.CreateHeadset(
-        () => true,
-        () => centerPosition,
-        () => centerRotation,
-        null,
-        () => leftPosition,
-        () => leftRotation,
-        () => rightPosition,
-        () => rightRotation
-      );
-      controllerRight ??= CreateController(XRNode.RightHand, controller1, InputDeviceCharacteristics.Right);
-      controllerLeft ??= CreateController(XRNode.LeftHand, controller2, InputDeviceCharacteristics.Left);
-
-#if UNITY_INPUT_SYSTEM
-      device ??= InputSystem.AddDevice<XRHMD>();
-      Debug.Log("Added new input headset: " + device);
-      // InputSystem.RegisterLayout<Unity.XR.Oculus.Input.OculusTouchController>(
-      //   matches: new InputDeviceMatcher()
-      //     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-      //     .WithProduct(@"(^(Oculus Touch Controller))|(^(Oculus Quest Controller))"));
-      // InputSystem.RegisterLayout<Unity.XR.Oculus.Input.OculusRemote>(
-      //   matches: new InputDeviceMatcher()
-      //     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-      //     .WithProduct(@"Oculus Remote"));
-      // InputSystem.RegisterLayout<Unity.XR.Oculus.Input.OculusTrackingReference>(
-      //   matches: new InputDeviceMatcher()
-      //     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-      //     .WithProduct(@"((Tracking Reference)|(^(Oculus Rift [a-zA-Z0-9]* \(Camera)))"));
-#endif
+      if (headset == null)
+      {
+        headset = MockDeviceBuilder.CreateHeadset(
+          () => true,
+          () => centerPosition,
+          () => centerRotation,
+          null,
+          () => leftPosition,
+          () => leftRotation,
+          () => rightPosition,
+          () => rightRotation
+        );
+        devices.Add(headset);
+      }
+      if (controllerRight == null)
+      {
+        controllerRight = CreateController(XRNode.RightHand, controller1, InputDeviceCharacteristics.Right);
+        devices.Add(controllerRight);
+      }
+      if (controllerLeft == null)
+      {
+        controllerLeft = CreateController(XRNode.LeftHand, controller2, InputDeviceCharacteristics.Left);
+        devices.Add(controllerLeft);
+      }
     }
-    
+
     private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
     {
-      var device = new MockInputDevice("<XRController>", node)
+      var device = new MockInputDevice("<XRController>", node, nameof(OpenVROculusTouchController))
       {
         SerialNumber = "1.0.0",
         Manufacturer = "Needle",
@@ -135,27 +131,16 @@ namespace WebXR
       device.AddFeature(CommonUsages.deviceRotation, () => controller?.rotation * Quaternion.Euler(90,0,0) ?? Quaternion.identity); 
       device.AddFeature(CommonUsages.trigger, () => controller?.trigger ?? 0);
       device.AddFeature(CommonUsages.grip, () => controller?.squeeze ?? 0);
-      device.AddFeature(CommonUsages.secondary2DAxis, () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
       device.AddFeature(CommonUsages.primary2DAxis, () => controller != null ? new Vector2(controller.thumbstickX, controller.thumbstickY) : Vector2.zero);
       device.AddFeature(CommonUsages.primary2DAxisClick, () => controller?.thumbstick > .5f);
+      device.AddFeature(CommonUsages.secondary2DAxis, () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
       device.AddFeature(CommonUsages.primaryButton, () => controller?.buttonA > .5f);
       device.AddFeature(CommonUsages.secondaryButton, () => controller?.buttonB > .5f);
+      // openvr 
+      device.AddFeature(new InputFeatureUsage<Vector2>("thumbstick"), () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
+      device.AddFeature(new InputFeatureUsage<float>("thumbstickClicked"), () => controller?.thumbstick ?? 0);
+      
       return device;
-    }
-
-    private void UpdateControllersOnEnd()
-    {
-      if (OnHandUpdate != null)
-      {
-        if (GetHandFromHandsArray(0, ref leftHand)) OnHandUpdate?.Invoke(leftHand);
-        if (GetHandFromHandsArray(1, ref rightHand)) OnHandUpdate?.Invoke(rightHand);
-      }
-
-      if (OnControllerUpdate != null)
-      {
-        if (GetGamepadFromControllersArray(0, ref controller1)) OnControllerUpdate?.Invoke(controller1);
-        if (GetGamepadFromControllersArray(1, ref controller2)) OnControllerUpdate?.Invoke(controller2);
-      }
     }
 
     private void OnUpdate()
@@ -179,13 +164,37 @@ namespace WebXR
 
       if (!hasHandsData && this.xrState != WebXRState.NORMAL)
       {
-        if (GetGamepadFromControllersArray(0, ref controller1)) OnControllerUpdate?.Invoke(controller1);
-        if (GetGamepadFromControllersArray(1, ref controller2)) OnControllerUpdate?.Invoke(controller2);
+        if (GetGamepadFromControllersArray(0, ref controller1))
+        {
+          OnControllerUpdate?.Invoke(controller1);
+          controllerLeft.UpdateDevice();
+        }
+
+        if (GetGamepadFromControllersArray(1, ref controller2))
+        {
+          OnControllerUpdate?.Invoke(controller2);
+          controllerRight.UpdateDevice();
+        }
       }
 
       if (OnViewerHitTestUpdate != null && this.xrState == WebXRState.AR)
       {
         if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose)) OnViewerHitTestUpdate?.Invoke(viewerHitTestPose);
+      }
+    }
+
+    private void UpdateControllersOnEnd()
+    {
+      if (OnHandUpdate != null)
+      {
+        if (GetHandFromHandsArray(0, ref leftHand)) OnHandUpdate?.Invoke(leftHand);
+        if (GetHandFromHandsArray(1, ref rightHand)) OnHandUpdate?.Invoke(rightHand);
+      }
+
+      if (OnControllerUpdate != null)
+      {
+        if (GetGamepadFromControllersArray(0, ref controller1)) OnControllerUpdate?.Invoke(controller1);
+        if (GetGamepadFromControllersArray(1, ref controller2)) OnControllerUpdate?.Invoke(controller2);
       }
     }
 
@@ -205,34 +214,8 @@ namespace WebXR
       
       XRDisplaySubsystem_Patch.Instance.ProjectionLeft = leftProjectionMatrix;
       XRDisplaySubsystem_Patch.Instance.ProjectionRight = rightProjectionMatrix;
-
-      #if UNITY_INPUT_SYSTEM
-      using (StateEvent.From(device, out var ptr))
-      {
-        device.isTracked.WriteValueIntoEvent(1f, ptr);
-        device.trackingState.WriteValueIntoEvent((int)(InputTrackingState.Position | InputTrackingState.Rotation), ptr);
-        device.devicePosition.WriteValueIntoEvent(centerPosition, ptr);
-        device.deviceRotation.WriteValueIntoEvent(centerRotation, ptr);
-        device.centerEyePosition.WriteValueIntoEvent(centerPosition, ptr);
-        device.centerEyeRotation.WriteValueIntoEvent(centerRotation, ptr);
-        device.leftEyePosition.WriteValueIntoEvent(leftPosition, ptr);
-        device.leftEyeRotation.WriteValueIntoEvent(leftRotation, ptr);
-        device.rightEyePosition.WriteValueIntoEvent(rightPosition, ptr);
-        device.rightEyeRotation.WriteValueIntoEvent(rightRotation, ptr);
-        InputSystem.QueueEvent(ptr);
-        InputSystem.Update();
-        Debug.Log("HasValueChangeInEvent: " + device.HasValueChangeInEvent(ptr));
-       
-        Debug.Log("Queued headset update " + centerRotation.eulerAngles + " is it enabled? " + device.enabled + ", updated? " +  device.wasUpdatedThisFrame + ", canRunInBackground?: " + device.canRunInBackground);
-      }
-
-
-      var unsupportedList = new List<InputDeviceDescription>();
-      var cnt = InputSystem.GetUnsupportedDevices(unsupportedList);
-      if(cnt > 0)
-        Debug.Log("Unsupported:\n" + string.Join("\n", unsupportedList));
       
-      #endif
+      headset.UpdateDevice();
 
       OnHeadsetUpdate?.Invoke(
         leftProjectionMatrix,
@@ -339,10 +322,14 @@ namespace WebXR
           XRDisplaySubsystem_Patch.AttachDisplayBehaviour<RenderVR>();
           WebXRLoader.DisplaySubsystem.Start();
           WebXRLoader.InputSubsystem.Start();
-          headset.Connect();
+          foreach(var dev in devices) dev.Connect();
+          #if UNITY_INPUT_SYSTEM
+          Debug.Assert(XRController.leftHand is {enabled: true}, "No left hand found or not enabled: " + XRController.leftHand);
+          Debug.Assert(XRController.rightHand is {enabled: true}, "No right hand found or not enabled: " + XRController.rightHand);
+          #endif
           break;
         case WebXRState.NORMAL:
-          headset.Disconnect();
+          foreach(var dev in devices) dev.Disconnect();
           WebXRLoader.InputSubsystem.Stop();
           WebXRLoader.DisplaySubsystem.Stop();
           break;

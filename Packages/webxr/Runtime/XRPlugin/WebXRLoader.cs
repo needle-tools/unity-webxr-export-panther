@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using needle.weaver.webxr;
+using Unity.XR.OpenVR;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
@@ -25,6 +26,7 @@ namespace WebXR
     {
       #if UNITY_INPUT_SYSTEM
       InputSystem.RegisterLayout(typeof(XRHMD));
+      InputSystem.RegisterLayout(typeof(OpenVROculusTouchController));
       InputSystem.onDeviceChange += (arg, evt) => Debug.Log("Device " + arg + " " + evt);
       #endif
       
