@@ -9,6 +9,7 @@ using UnityEngine.XR;
 using Utils;
 using CommonUsages = UnityEngine.XR.CommonUsages;
 using InputDevice = UnityEngine.XR.InputDevice;
+using Object = UnityEngine.Object;
 #if UNITY_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Layouts;
@@ -60,7 +61,15 @@ namespace WebXR
       // InputSystem.EnableDevice(device);
       
       PlayerLoopHelper.AddUpdateCallback(this.GetType(), this.OnUpdate, PlayerLoopHelper.Stages.PostLateUpdate);
-      
+
+      var poseDrivers = Object.FindObjectsOfType<TrackedPoseDriver>();
+      foreach (var tp in poseDrivers)
+      {
+        Debug.Log("ENABLE " + tp + ", " + tp.positionAction.enabled);
+        tp.positionAction.Enable();
+        tp.rotationAction.Enable();
+      }
+
     }
 
     public override void Stop()
@@ -119,13 +128,13 @@ namespace WebXR
 
     private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
     {
-      var device = new MockInputDevice("<XRController>", node, nameof(OpenVROculusTouchController))
+      var device = new MockInputDevice("<XRController>", node, "OpenVROculusTouchController")
       {
         SerialNumber = "1.0.0",
         Manufacturer = "Needle",
         DeviceCharacteristics = InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | side
       };
-      device.AddFeature(CommonUsages.isTracked, () => controller?.enabled ?? false);
+      device.AddFeature(CommonUsages.isTracked, () => true);
       device.AddFeature(CommonUsages.trackingState, () => InputTrackingState.Position | InputTrackingState.Rotation);
       device.AddFeature(CommonUsages.devicePosition, () => controller?.position ?? Vector3.zero);
       device.AddFeature(CommonUsages.deviceRotation, () => controller?.rotation * Quaternion.Euler(90,0,0) ?? Quaternion.identity); 
@@ -136,9 +145,13 @@ namespace WebXR
       device.AddFeature(CommonUsages.secondary2DAxis, () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
       device.AddFeature(CommonUsages.primaryButton, () => controller?.buttonA > .5f);
       device.AddFeature(CommonUsages.secondaryButton, () => controller?.buttonB > .5f);
+      
       // openvr 
       device.AddFeature(new InputFeatureUsage<Vector2>("thumbstick"), () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
       device.AddFeature(new InputFeatureUsage<float>("thumbstickClicked"), () => controller?.thumbstick ?? 0);
+      
+      device.AddFeature(new InputFeatureUsage<Vector3>("deviceVelocity"), () => Vector3.zero);
+      // device.AddFeature(new InputFeatureUsage<Hand>("LeftHand"), () => new Hand());
       
       return device;
     }
@@ -162,18 +175,22 @@ namespace WebXR
         hasHandsData = leftHand.enabled || rightHand.enabled;
       }
 
-      if (!hasHandsData && this.xrState != WebXRState.NORMAL)
+      if (this.xrState != WebXRState.NORMAL)
       {
         if (GetGamepadFromControllersArray(0, ref controller1))
         {
           OnControllerUpdate?.Invoke(controller1);
           controllerLeft.UpdateDevice();
+          var hand = XRController.leftHand;
+          Debug.Log(hand.devicePosition.ReadValue() + ", " + hand.lastUpdateTime + ", " + hand.enabled);
         }
 
         if (GetGamepadFromControllersArray(1, ref controller2))
         {
           OnControllerUpdate?.Invoke(controller2);
           controllerRight.UpdateDevice();
+          var hand = XRController.rightHand;
+          Debug.Log(hand.devicePosition.ReadValue() + ", " + hand.lastUpdateTime);
         }
       }
 
