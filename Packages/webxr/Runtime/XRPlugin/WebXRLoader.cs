@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using needle.weaver.webxr;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.XR;
 using UnityEngine.XR.Management;
 
@@ -21,6 +23,10 @@ namespace WebXR
 
     public override bool Initialize()
     {
+      #if UNITY_INPUT_SYSTEM
+      InputSystem.RegisterLayout(typeof(XRHMD));
+      #endif
+      
       CreateSubsystem<WebXRSubsystemDescriptor, WebXRSubsystem>(subsystemDescriptors, typeof(WebXRSubsystem).FullName);
       CreateSubsystem<XRDisplaySubsystemDescriptor, XRDisplaySubsystem>(displaySubsystemDescriptors, XRDisplaySubsystem_Patch.Id);
       CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(inputSubsystemDescriptors, XRInputSubsystem_Patch.Id);

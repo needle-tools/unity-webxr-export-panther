@@ -4,7 +4,8 @@
     "references": [
         "Unity.XR.Management",
         "Unity.Subsystem.Registration",
-        "needle.weaver.webxr"
+        "needle.weaver.webxr",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -13,6 +14,12 @@
     "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "",
+            "define": "UNITY_INPUT_SYSTEM"
+        }
+    ],
     "noEngineReferences": false
 }

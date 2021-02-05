@@ -1,12 +1,18 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using AOT;
 using needle.weaver.webxr;
 using UnityEngine;
-using UnityEngine.LowLevel;
-using UnityEngine.PlayerLoop;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.XR;
 using Utils;
+using CommonUsages = UnityEngine.XR.CommonUsages;
+using InputDevice = UnityEngine.XR.InputDevice;
+#if UNITY_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.XR;
+#endif
 
 namespace WebXR
 {
@@ -24,7 +30,7 @@ namespace WebXR
         id = typeof(WebXRSubsystem).FullName,
         subsystemImplementationType = typeof(WebXRSubsystem)
       });
-      #if DEVELOPMENT_BUILD
+      #if UNITY_EDITOR || DEVELOPMENT_BUILD
       if (res) Debug.Log("Registered " + nameof(WebXRSubsystemDescriptor));
       else Debug.LogError("Failed registering " + nameof(WebXRSubsystemDescriptor));
       #endif
@@ -50,7 +56,8 @@ namespace WebXR
       controllerLeft.Connect();
       controllerRight.Connect();
       
-      PlayerLoopHelper.AddUpdateCallback(this.GetType(), this.OnUpdate, PlayerLoopHelper.Stages.EarlyUpdate);
+      PlayerLoopHelper.AddUpdateCallback(this.GetType(), this.OnUpdate, PlayerLoopHelper.Stages.PostLateUpdate);
+      
     }
 
     public override void Stop()
@@ -73,29 +80,40 @@ namespace WebXR
       Instance = null;
     }
 
-    private PlayerLoopSystem update;
+    private XRHMD device;
     private MockInputDevice headset, controllerLeft, controllerRight;
 
     private void CreateInputDevices()
     {
-      if (headset == null)
-      {
-        headset = MockDeviceBuilder.CreateHeadset(
-          () => true,
-          () => centerPosition,
-          () => centerRotation,
-          null,
-          () => leftPosition,
-          () => leftRotation,
-          () => rightPosition,
-          () => rightRotation
-        );
-      }
-      if(controllerRight == null) 
-        controllerRight = CreateController(XRNode.RightHand, controller1, InputDeviceCharacteristics.Right);
-      if (controllerLeft == null)
-        controllerLeft = CreateController(XRNode.LeftHand, controller2, InputDeviceCharacteristics.Left);
+      headset ??= MockDeviceBuilder.CreateHeadset(
+        () => true,
+        () => centerPosition,
+        () => centerRotation,
+        null,
+        () => leftPosition,
+        () => leftRotation,
+        () => rightPosition,
+        () => rightRotation
+      );
+      controllerRight ??= CreateController(XRNode.RightHand, controller1, InputDeviceCharacteristics.Right);
+      controllerLeft ??= CreateController(XRNode.LeftHand, controller2, InputDeviceCharacteristics.Left);
 
+#if UNITY_INPUT_SYSTEM
+      device ??= InputSystem.AddDevice<XRHMD>();
+      Debug.Log("Added new input headset: " + device);
+      // InputSystem.RegisterLayout<Unity.XR.Oculus.Input.OculusTouchController>(
+      //   matches: new InputDeviceMatcher()
+      //     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+      //     .WithProduct(@"(^(Oculus Touch Controller))|(^(Oculus Quest Controller))"));
+      // InputSystem.RegisterLayout<Unity.XR.Oculus.Input.OculusRemote>(
+      //   matches: new InputDeviceMatcher()
+      //     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+      //     .WithProduct(@"Oculus Remote"));
+      // InputSystem.RegisterLayout<Unity.XR.Oculus.Input.OculusTrackingReference>(
+      //   matches: new InputDeviceMatcher()
+      //     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+      //     .WithProduct(@"((Tracking Reference)|(^(Oculus Rift [a-zA-Z0-9]* \(Camera)))"));
+#endif
     }
     
     private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
@@ -124,41 +142,28 @@ namespace WebXR
     {
       if (OnHandUpdate != null)
       {
-        if (GetHandFromHandsArray(0, ref leftHand))
-        {
-          OnHandUpdate?.Invoke(leftHand);
-        }
-
-        if (GetHandFromHandsArray(1, ref rightHand))
-        {
-          OnHandUpdate?.Invoke(rightHand);
-        }
+        if (GetHandFromHandsArray(0, ref leftHand)) OnHandUpdate?.Invoke(leftHand);
+        if (GetHandFromHandsArray(1, ref rightHand)) OnHandUpdate?.Invoke(rightHand);
       }
 
       if (OnControllerUpdate != null)
       {
-        if (GetGamepadFromControllersArray(0, ref controller1))
-        {
-          OnControllerUpdate?.Invoke(controller1);
-        }
-
-        if (GetGamepadFromControllersArray(1, ref controller2))
-        {
-          OnControllerUpdate?.Invoke(controller2);
-        }
+        if (GetGamepadFromControllersArray(0, ref controller1)) OnControllerUpdate?.Invoke(controller1);
+        if (GetGamepadFromControllersArray(1, ref controller2)) OnControllerUpdate?.Invoke(controller2);
       }
     }
 
     private void OnUpdate()
     {
-      if (switchToEnd)
+      if (switchToEndXR)
       {
-        switchToEnd = false;
+        switchToEndXR = false;
         UpdateControllersOnEnd();
       }
       if (this.xrState == WebXRState.NORMAL) return;
       
       UpdateXRCameras();
+      
       var hasHandsData = false;
       if (this.xrState != WebXRState.NORMAL)
       {
@@ -181,29 +186,52 @@ namespace WebXR
 
     private void UpdateXRCameras()
     {
-      if (this.xrState != WebXRState.NORMAL)
+      if (this.xrState == WebXRState.NORMAL) return;
+      
+      GetMatrixFromSharedArray(0, ref leftProjectionMatrix);
+      GetMatrixFromSharedArray(16, ref rightProjectionMatrix);
+      GetQuaternionFromSharedArray(32, ref leftRotation);
+      GetQuaternionFromSharedArray(36, ref rightRotation);
+      GetVector3FromSharedArray(40, ref leftPosition);
+      GetVector3FromSharedArray(43, ref rightPosition);
+
+      centerPosition = Vector3.Lerp(leftPosition, rightPosition, .5f);
+      centerRotation = Quaternion.Lerp(leftRotation, rightRotation, .5f);
+      
+      XRDisplaySubsystem_Patch.Instance.ProjectionLeft = leftProjectionMatrix;
+      XRDisplaySubsystem_Patch.Instance.ProjectionRight = rightProjectionMatrix;
+
+      #if UNITY_INPUT_SYSTEM
+      using (StateEvent.From(device, out var ptr))
       {
-        GetMatrixFromSharedArray(0, ref leftProjectionMatrix);
-        GetMatrixFromSharedArray(16, ref rightProjectionMatrix);
-        GetQuaternionFromSharedArray(32, ref leftRotation);
-        GetQuaternionFromSharedArray(36, ref rightRotation);
-        GetVector3FromSharedArray(40, ref leftPosition);
-        GetVector3FromSharedArray(43, ref rightPosition);
-
-        centerPosition = Vector3.Lerp(leftPosition, rightPosition, .5f);
-        centerRotation = Quaternion.Lerp(leftRotation, rightRotation, .5f);
-
-        XRDisplaySubsystem_Patch.Instance.ProjectionLeft = leftProjectionMatrix;
-        XRDisplaySubsystem_Patch.Instance.ProjectionRight = rightProjectionMatrix;
-        
-        OnHeadsetUpdate?.Invoke(
-            leftProjectionMatrix,
-            rightProjectionMatrix,
-            leftRotation,
-            rightRotation,
-            leftPosition,
-            rightPosition);
+        device.isTracked.WriteValueIntoEvent(1f, ptr);
+        device.trackingState.WriteValueIntoEvent((int)(InputTrackingState.Position | InputTrackingState.Rotation), ptr);
+        device.devicePosition.WriteValueIntoEvent(centerPosition, ptr);
+        device.deviceRotation.WriteValueIntoEvent(centerRotation, ptr);
+        device.leftEyePosition.WriteValueIntoEvent(leftPosition, ptr);
+        device.leftEyeRotation.WriteValueIntoEvent(leftRotation, ptr);
+        device.rightEyePosition.WriteValueIntoEvent(rightPosition, ptr);
+        device.rightEyeRotation.WriteValueIntoEvent(rightRotation, ptr);
+        InputSystem.QueueEvent(ptr);
+        InputSystem.Update();
+        Debug.Log("Queued headset update " + centerRotation.eulerAngles);
       }
+
+
+      var unsupportedList = new List<InputDeviceDescription>();
+      var cnt = InputSystem.GetUnsupportedDevices(unsupportedList);
+      if(cnt > 0)
+        Debug.Log("Unsupported:\n" + string.Join("\n", unsupportedList));
+      
+      #endif
+
+      OnHeadsetUpdate?.Invoke(
+        leftProjectionMatrix,
+        rightProjectionMatrix,
+        leftRotation,
+        rightRotation,
+        leftPosition,
+        rightPosition);
     }
 
     private bool _running;
@@ -213,19 +241,14 @@ namespace WebXR
 
     internal WebXRState xrState = WebXRState.NORMAL;
 
+    #region EVENTS
     public delegate void XRCapabilitiesUpdate(WebXRDisplayCapabilities capabilities);
     public static event XRCapabilitiesUpdate OnXRCapabilitiesUpdate;
 
     public delegate void XRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect);
     public static event XRChange OnXRChange;
 
-    public delegate void HeadsetUpdate(
-        Matrix4x4 leftProjectionMatrix,
-        Matrix4x4 rightProjectionMatrix,
-        Quaternion leftRotation,
-        Quaternion rightRotation,
-        Vector3 leftPosition,
-        Vector3 rightPosition);
+    public delegate void HeadsetUpdate(Matrix4x4 leftProjectionMatrix, Matrix4x4 rightProjectionMatrix, Quaternion leftRotation, Quaternion rightRotation, Vector3 leftPosition, Vector3 rightPosition);
     public static event HeadsetUpdate OnHeadsetUpdate;
 
     public delegate void ControllerUpdate(WebXRControllerData controllerData);
@@ -236,7 +259,9 @@ namespace WebXR
 
     public delegate void HitTestUpdate(WebXRHitPoseData hitPoseData);
     public static event HitTestUpdate OnViewerHitTestUpdate;
+    #endregion
 
+    #region DATA
     // Cameras calculations helpers
     private Matrix4x4 leftProjectionMatrix, rightProjectionMatrix;
     private Vector3 centerPosition, leftPosition, rightPosition;
@@ -254,10 +279,9 @@ namespace WebXR
 
     // Shared array for hit-test pose data
     private readonly float[] viewerHitTestPoseArray = new float[9];
-
+    
     private bool viewerHitTestOn = false;
-
-    private bool switchToEnd = false;
+    private bool switchToEndXR = false;
 
     private WebXRHandData leftHand = new WebXRHandData();
     private WebXRHandData rightHand = new WebXRHandData();
@@ -265,6 +289,7 @@ namespace WebXR
     private WebXRControllerData controller2 = new WebXRControllerData();
     private WebXRHitPoseData viewerHitTestPose = new WebXRHitPoseData();
     private WebXRDisplayCapabilities capabilities = new WebXRDisplayCapabilities();
+    #endregion
 
     // Handles WebXR capabilities from browser
     [MonoPInvokeCallback(typeof(Action<string>))]
@@ -341,7 +366,7 @@ namespace WebXR
     [MonoPInvokeCallback(typeof(Action))]
     public static void OnEndXR()
     {
-      Instance.switchToEnd = true;
+      Instance.switchToEndXR = true;
       Instance.setXrState(WebXRState.NORMAL, 1, new Rect(), new Rect());
     }
 
