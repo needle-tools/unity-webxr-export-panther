@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AOT;
 using needle.weaver.webxr;
 using UnityEngine;
+using UnityEngine.LowLevel;
+using UnityEngine.PlayerLoop;
 using UnityEngine.XR;
 
 namespace WebXR
@@ -33,7 +36,16 @@ namespace WebXR
       Debug.Log("Start " + nameof(WebXRSubsystem));
       _running = true;
       Instance = this;
-      InternalStart();
+
+
+      update = new PlayerLoopSystem();
+      
+      Native.set_webxr_events(OnStartAR, OnStartVR, OnEndXR, OnXRCapabilities, OnInputProfiles);
+      Native.InitControllersArray(controllersArray, controllersArray.Length);
+      Native.InitHandsArray(handsArray, handsArray.Length);
+      Native.InitViewerHitTestPoseArray(viewerHitTestPoseArray, viewerHitTestPoseArray.Length);
+      Native.InitXRSharedArray(sharedArray, sharedArray.Length);
+      Native.ListenWebXRData();
       
       CreateInputDevices();
       headset.Connect();
@@ -60,6 +72,7 @@ namespace WebXR
       Instance = null;
     }
 
+    private PlayerLoopSystem update;
     private MockInputDevice headset, controllerLeft, controllerRight;
 
     private void CreateInputDevices()
@@ -197,16 +210,6 @@ namespace WebXR
 
     private static WebXRSubsystem Instance;
 
-    private void InternalStart()
-    {
-      Native.set_webxr_events(OnStartAR, OnStartVR, OnEndXR, OnXRCapabilities, OnInputProfiles);
-      Native.InitControllersArray(controllersArray, controllersArray.Length);
-      Native.InitHandsArray(handsArray, handsArray.Length);
-      Native.InitViewerHitTestPoseArray(viewerHitTestPoseArray, viewerHitTestPoseArray.Length);
-      Native.InitXRSharedArray(sharedArray, sharedArray.Length);
-      Native.ListenWebXRData();
-    }
-    
     internal WebXRState xrState = WebXRState.NORMAL;
 
     public delegate void XRCapabilitiesUpdate(WebXRDisplayCapabilities capabilities);
@@ -304,8 +307,8 @@ namespace WebXR
           headset.Connect();
           break;
         case WebXRState.NORMAL:
-          // headset.Disconnect();
-          // WebXRLoader.InputSubsystem.Stop();
+          headset.Disconnect();
+          WebXRLoader.InputSubsystem.Stop();
           WebXRLoader.DisplaySubsystem.Stop();
           break;
       }
