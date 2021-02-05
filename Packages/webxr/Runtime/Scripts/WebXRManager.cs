@@ -66,11 +66,6 @@ namespace WebXR
           Instance = this;
           enabled = subsystem != null;
       }
-
-      private void Update()
-      {
-          subsystem.OnUpdate();
-      }
       #else
       protected override bool PlatformSupported => false;
 #endif

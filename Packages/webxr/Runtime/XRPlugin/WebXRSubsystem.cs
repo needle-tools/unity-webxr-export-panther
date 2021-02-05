@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
 using UnityEngine.XR;
+using Utils;
 
 namespace WebXR
 {
@@ -36,9 +37,6 @@ namespace WebXR
       Debug.Log("Start " + nameof(WebXRSubsystem));
       _running = true;
       Instance = this;
-
-
-      update = new PlayerLoopSystem();
       
       Native.set_webxr_events(OnStartAR, OnStartVR, OnEndXR, OnXRCapabilities, OnInputProfiles);
       Native.InitControllersArray(controllersArray, controllersArray.Length);
@@ -51,6 +49,8 @@ namespace WebXR
       headset.Connect();
       controllerLeft.Connect();
       controllerRight.Connect();
+      
+      PlayerLoopHelper.AddUpdateCallback(this.GetType(), this.OnUpdate, PlayerLoopHelper.Stages.EarlyUpdate);
     }
 
     public override void Stop()
@@ -62,6 +62,7 @@ namespace WebXR
       headset.Disconnect();
       controllerLeft.Disconnect();
       controllerRight.Disconnect();
+      PlayerLoopHelper.RemoveUpdateDelegate(this.GetType(), this.OnUpdate);
     }
 
     protected override void OnDestroy()
@@ -148,7 +149,7 @@ namespace WebXR
       }
     }
 
-    internal void OnUpdate()
+    private void OnUpdate()
     {
       if (switchToEnd)
       {
