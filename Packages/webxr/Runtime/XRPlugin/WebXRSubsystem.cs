@@ -213,6 +213,8 @@ namespace WebXR
         device.trackingState.WriteValueIntoEvent((int)(InputTrackingState.Position | InputTrackingState.Rotation), ptr);
         device.devicePosition.WriteValueIntoEvent(centerPosition, ptr);
         device.deviceRotation.WriteValueIntoEvent(centerRotation, ptr);
+        device.centerEyePosition.WriteValueIntoEvent(centerPosition, ptr);
+        device.centerEyeRotation.WriteValueIntoEvent(centerRotation, ptr);
         device.leftEyePosition.WriteValueIntoEvent(leftPosition, ptr);
         device.leftEyeRotation.WriteValueIntoEvent(leftRotation, ptr);
         device.rightEyePosition.WriteValueIntoEvent(rightPosition, ptr);
@@ -221,7 +223,7 @@ namespace WebXR
         InputSystem.Update();
         Debug.Log("HasValueChangeInEvent: " + device.HasValueChangeInEvent(ptr));
        
-        Debug.Log("Queued headset update " + centerRotation.eulerAngles + " is it enabled? " + device.enabled + ", updated? " +  device.wasUpdatedThisFrame);
+        Debug.Log("Queued headset update " + centerRotation.eulerAngles + " is it enabled? " + device.enabled + ", updated? " +  device.wasUpdatedThisFrame + ", canRunInBackground?: " + device.canRunInBackground);
       }
 
 
