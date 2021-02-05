@@ -25,6 +25,7 @@ namespace WebXR
     {
       #if UNITY_INPUT_SYSTEM
       InputSystem.RegisterLayout(typeof(XRHMD));
+      InputSystem.onDeviceChange += (arg, evt) => Debug.Log("Device " + arg + " " + evt);
       #endif
       
       CreateSubsystem<WebXRSubsystemDescriptor, WebXRSubsystem>(subsystemDescriptors, typeof(WebXRSubsystem).FullName);

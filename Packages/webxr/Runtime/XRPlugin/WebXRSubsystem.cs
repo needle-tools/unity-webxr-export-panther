@@ -56,6 +56,8 @@ namespace WebXR
       controllerLeft.Connect();
       controllerRight.Connect();
       
+      InputSystem.EnableDevice(device);
+      
       PlayerLoopHelper.AddUpdateCallback(this.GetType(), this.OnUpdate, PlayerLoopHelper.Stages.PostLateUpdate);
       
     }
@@ -69,6 +71,9 @@ namespace WebXR
       headset.Disconnect();
       controllerLeft.Disconnect();
       controllerRight.Disconnect();
+      
+      InputSystem.DisableDevice(device);
+      
       PlayerLoopHelper.RemoveUpdateDelegate(this.GetType(), this.OnUpdate);
     }
 
@@ -214,7 +219,9 @@ namespace WebXR
         device.rightEyeRotation.WriteValueIntoEvent(rightRotation, ptr);
         InputSystem.QueueEvent(ptr);
         InputSystem.Update();
-        Debug.Log("Queued headset update " + centerRotation.eulerAngles);
+        Debug.Log("HasValueChangeInEvent: " + device.HasValueChangeInEvent(ptr));
+       
+        Debug.Log("Queued headset update " + centerRotation.eulerAngles + " is it enabled? " + device.enabled + ", updated? " +  device.wasUpdatedThisFrame);
       }
 
 
