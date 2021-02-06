@@ -2,17 +2,12 @@
 using System.Collections.Generic;
 using AOT;
 using needle.weaver.webxr;
-using Unity.XR.OpenVR;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.XR;
 using Utils;
 using CommonUsages = UnityEngine.XR.CommonUsages;
-using InputDevice = UnityEngine.XR.InputDevice;
 using Object = UnityEngine.Object;
 #if UNITY_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
 #endif
 
@@ -128,7 +123,7 @@ namespace WebXR
 
     private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
     {
-      var device = new MockInputDevice("<XRController>", node, "OpenVROculusTouchController")
+      var device = new MockInputDevice("<XRController>", node, nameof(WebXRControllerLayout))
       {
         SerialNumber = "1.0.0",
         Manufacturer = "Needle",
@@ -147,10 +142,9 @@ namespace WebXR
       device.AddFeature(CommonUsages.secondaryButton, () => controller?.buttonB > .5f);
       
       // openvr 
-      device.AddFeature(new InputFeatureUsage<Vector2>("thumbstick"), () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
       device.AddFeature(new InputFeatureUsage<float>("thumbstickClicked"), () => controller?.thumbstick ?? 0);
       
-      device.AddFeature(new InputFeatureUsage<Vector3>("deviceVelocity"), () => Vector3.zero);
+      // device.AddFeature(new InputFeatureUsage<Vector3>("deviceVelocity"), () => Vector3.zero);
       // device.AddFeature(new InputFeatureUsage<Hand>("LeftHand"), () => new Hand());
       
       return device;
@@ -182,7 +176,7 @@ namespace WebXR
           OnControllerUpdate?.Invoke(controller1);
           controllerLeft.UpdateDevice();
           var hand = XRController.leftHand;
-          Debug.Log(hand.devicePosition.ReadValue() + ", " + hand.lastUpdateTime + ", " + hand.enabled);
+          // Debug.Log(hand.devicePosition.ReadValue() + ", " + hand.lastUpdateTime + ", " + hand.enabled);
         }
 
         if (GetGamepadFromControllersArray(1, ref controller2))
@@ -190,7 +184,7 @@ namespace WebXR
           OnControllerUpdate?.Invoke(controller2);
           controllerRight.UpdateDevice();
           var hand = XRController.rightHand;
-          Debug.Log(hand.devicePosition.ReadValue() + ", " + hand.lastUpdateTime);
+          // Debug.Log(hand.devicePosition.ReadValue() + ", " + hand.lastUpdateTime);
         }
       }
 

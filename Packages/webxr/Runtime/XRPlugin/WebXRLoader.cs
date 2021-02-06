@@ -26,7 +26,9 @@ namespace WebXR
     {
       #if UNITY_INPUT_SYSTEM
       InputSystem.RegisterLayout(typeof(XRHMD));
+      InputSystem.RegisterLayout(typeof(XRController));
       InputSystem.RegisterLayout(typeof(OpenVROculusTouchController));
+      InputSystem.RegisterLayout(typeof(WebXRControllerLayout));
       InputSystem.onDeviceChange += (arg, evt) => Debug.Log("Device " + arg + " " + evt);
       #endif
       
