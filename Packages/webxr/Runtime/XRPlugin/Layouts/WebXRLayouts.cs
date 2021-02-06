@@ -17,7 +17,7 @@ namespace WebXR
 			public Vector2Control thumbstick { get; private set; }
 
 			[Preserve] [InputControl] public AxisControl trigger { get; private set; }
-			// [Preserve] [InputControl] public AxisControl grip { get; private set; }
+			[Preserve] [InputControl] public AxisControl grip { get; private set; }
 
 			[Preserve]
 			[InputControl(aliases = new[] {"A", "X", "Alternate"})]
@@ -27,9 +27,9 @@ namespace WebXR
 			[InputControl(aliases = new[] {"B", "Y", "Primary"})]
 			public ButtonControl secondaryButton { get; private set; }
 
-			// [Preserve]
-			// [InputControl(aliases = new[] {"GripButton"})]
-			// public ButtonControl gripPressed { get; private set; }
+			[Preserve]
+			[InputControl(aliases = new[] {"GripButton"})]
+			public ButtonControl gripPressed { get; private set; }
 
 			// [Preserve] [InputControl] public ButtonControl start { get; private set; }
 
@@ -49,9 +49,9 @@ namespace WebXR
 			// [InputControl(aliases = new[] {"indexTouch", "indexNearTouched"})]
 			// public AxisControl triggerTouched { get; private set; }
 
-			// [Preserve]
-			// [InputControl(aliases = new[] {"indexButton", "indexTouched"})]
-			// public ButtonControl triggerPressed { get; private set; }
+			[Preserve]
+			[InputControl(aliases = new[] {"indexButton", "indexTouched", "triggerButton"})]
+			public ButtonControl triggerPressed { get; private set; }
 			
 			protected override void FinishSetup()
 			{

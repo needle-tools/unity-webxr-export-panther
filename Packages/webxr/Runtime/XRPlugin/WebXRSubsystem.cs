@@ -49,22 +49,8 @@ namespace WebXR
       Native.ListenWebXRData();
       
       CreateInputDevices();
-      headset.Connect();
-      controllerLeft.Connect();
-      controllerRight.Connect();
-      
-      // InputSystem.EnableDevice(device);
-      
-      PlayerLoopHelper.AddUpdateCallback(this.GetType(), this.OnUpdate, PlayerLoopHelper.Stages.PostLateUpdate);
-
-      var poseDrivers = Object.FindObjectsOfType<TrackedPoseDriver>();
-      foreach (var tp in poseDrivers)
-      {
-        Debug.Log("ENABLE " + tp + ", " + tp.positionAction.enabled);
-        tp.positionAction.Enable();
-        tp.rotationAction.Enable();
-      }
-
+      foreach (var dev in devices) dev.Connect();
+      PlayerLoopHelper.AddUpdateCallback(this.GetType(), this.OnUpdate, PlayerLoopHelper.Stages.EarlyUpdate);
     }
 
     public override void Stop()
@@ -73,12 +59,7 @@ namespace WebXR
       Debug.Log("Stop " + nameof(WebXRSubsystem));
       _running = false;
       Instance = null;
-      headset.Disconnect();
-      controllerLeft.Disconnect();
-      controllerRight.Disconnect();
-      
-      // InputSystem.DisableDevice(device);
-      
+      foreach (var dev in devices) dev.Disconnect();
       PlayerLoopHelper.RemoveUpdateDelegate(this.GetType(), this.OnUpdate);
     }
 
@@ -134,18 +115,20 @@ namespace WebXR
       device.AddFeature(CommonUsages.devicePosition, () => controller?.position ?? Vector3.zero);
       device.AddFeature(CommonUsages.deviceRotation, () => controller?.rotation * Quaternion.Euler(90,0,0) ?? Quaternion.identity); 
       device.AddFeature(CommonUsages.trigger, () => controller?.trigger ?? 0);
+      device.AddFeature(CommonUsages.triggerButton, () => controller?.trigger > .5f);
       device.AddFeature(CommonUsages.grip, () => controller?.squeeze ?? 0);
+      device.AddFeature(CommonUsages.gripButton, () => controller?.squeeze > .5f);
+      // TODO: not sure about the touchpads / primary or secondary axis inputs
+      device.AddFeature(CommonUsages.primary2DAxisTouch, () => controller.touchpad > .5f);
       device.AddFeature(CommonUsages.primary2DAxis, () => controller != null ? new Vector2(controller.thumbstickX, controller.thumbstickY) : Vector2.zero);
-      device.AddFeature(CommonUsages.primary2DAxisClick, () => controller?.thumbstick > .5f);
+      device.AddFeature(CommonUsages.primary2DAxisClick, () => controller?.touchpad > .5f);
+      device.AddFeature(CommonUsages.secondary2DAxisTouch, () => controller.touchpad > .5f);
       device.AddFeature(CommonUsages.secondary2DAxis, () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
+      device.AddFeature(CommonUsages.secondary2DAxisClick, () => controller.touchpad > .5f);
       device.AddFeature(CommonUsages.primaryButton, () => controller?.buttonA > .5f);
       device.AddFeature(CommonUsages.secondaryButton, () => controller?.buttonB > .5f);
-      
       // openvr 
       device.AddFeature(new InputFeatureUsage<float>("thumbstickClicked"), () => controller?.thumbstick ?? 0);
-      
-      // device.AddFeature(new InputFeatureUsage<Vector3>("deviceVelocity"), () => Vector3.zero);
-      // device.AddFeature(new InputFeatureUsage<Hand>("LeftHand"), () => new Hand());
       
       return device;
     }
