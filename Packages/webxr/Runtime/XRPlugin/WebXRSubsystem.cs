@@ -71,7 +71,7 @@ namespace WebXR
       Instance = null;
     }
 
-    private MockInputDevice headset, controllerLeft, controllerRight;
+    private MockInputDevice headset, arDevice, controllerLeft, controllerRight;
     private readonly List<MockInputDevice> devices = new List<MockInputDevice>();
 
     private void CreateInputDevices()
@@ -99,6 +99,14 @@ namespace WebXR
       {
         controllerLeft = CreateController(XRNode.LeftHand, controller2, InputDeviceCharacteristics.Left);
         devices.Add(controllerLeft);
+      }
+
+      if (arDevice == null)
+      {
+        arDevice = new MockInputDevice("WebXR-Device", XRNode.Head, "HandheldARInputDevice");
+        arDevice.AddFeature(CommonUsages.devicePosition, () => centerPosition);
+        arDevice.AddFeature(CommonUsages.deviceRotation, () => centerRotation);
+        devices.Add(arDevice);
       }
     }
 
@@ -154,25 +162,24 @@ namespace WebXR
 
       if (this.xrState != WebXRState.NORMAL)
       {
+        if(xrState == WebXRState.VR) headset.UpdateDevice();
+        
         if (GetGamepadFromControllersArray(0, ref controller1))
         {
           OnControllerUpdate?.Invoke(controller1);
           controllerLeft.UpdateDevice();
-          var hand = XRController.leftHand;
-          // Debug.Log(hand.devicePosition.ReadValue() + ", " + hand.lastUpdateTime + ", " + hand.enabled);
         }
 
         if (GetGamepadFromControllersArray(1, ref controller2))
         {
           OnControllerUpdate?.Invoke(controller2);
           controllerRight.UpdateDevice();
-          var hand = XRController.rightHand;
-          // Debug.Log(hand.devicePosition.ReadValue() + ", " + hand.lastUpdateTime);
         }
       }
 
-      if (OnViewerHitTestUpdate != null && this.xrState == WebXRState.AR)
+      if (this.xrState == WebXRState.AR)
       {
+        arDevice.UpdateDevice();
         if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose)) OnViewerHitTestUpdate?.Invoke(viewerHitTestPose);
       }
     }
@@ -209,7 +216,6 @@ namespace WebXR
       XRDisplaySubsystem_Patch.Instance.ProjectionLeft = leftProjectionMatrix;
       XRDisplaySubsystem_Patch.Instance.ProjectionRight = rightProjectionMatrix;
       
-      headset.UpdateDevice();
 
       OnHeadsetUpdate?.Invoke(
         leftProjectionMatrix,
@@ -304,6 +310,7 @@ namespace WebXR
       controller2.profiles = controllersProfiles.conrtoller2;
     }
 
+    private Color preARBackgroundColor;
     private void setXrState(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
     {
       this.xrState = state;
@@ -313,19 +320,34 @@ namespace WebXR
       switch (this.xrState)
       {
         case WebXRState.VR:
-          XRDisplaySubsystem_Patch.AttachDisplayBehaviour<RenderVR>();
-          WebXRLoader.DisplaySubsystem.Start();
+          foreach(var dev in devices) dev.Disconnect();
+          StopViewerHitTest();
           WebXRLoader.InputSubsystem.Start();
-          foreach(var dev in devices) dev.Connect();
-          #if UNITY_INPUT_SYSTEM
-          Debug.Assert(XRController.leftHand is {enabled: true}, "No left hand found or not enabled: " + XRController.leftHand);
-          Debug.Assert(XRController.rightHand is {enabled: true}, "No right hand found or not enabled: " + XRController.rightHand);
-          #endif
+          WebXRLoader.DisplaySubsystem.Start();
+          headset.Connect();
+          controllerLeft.Connect();
+          controllerRight.Connect();
+          XRDisplaySubsystem_Patch.AttachDisplayBehaviour<RenderVR>();
           break;
         case WebXRState.NORMAL:
           foreach(var dev in devices) dev.Disconnect();
+          StopViewerHitTest();
           WebXRLoader.InputSubsystem.Stop();
           WebXRLoader.DisplaySubsystem.Stop();
+          break;
+        case WebXRState.AR:
+          foreach(var dev in devices) dev.Disconnect();
+          var main = Camera.main;
+          if (!main) main = Object.FindObjectOfType<Camera>();
+          if (main)
+          {
+            preARBackgroundColor = main.backgroundColor;
+            main.backgroundColor = new Color(0, 0, 0, 0);
+          }
+          StartViewerHitTest();
+          WebXRLoader.InputSubsystem.Start();
+          WebXRLoader.DisplaySubsystem.Stop();
+          arDevice.Connect();
           break;
       }
     }

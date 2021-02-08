@@ -484,8 +484,11 @@ setTimeout(function () {
       }
     
       XRManager.prototype.toggleHitTest = function () {
+        console.log("toggle hit test");
+        console.log(this.xrSession);
         if (!this.gameModule)
         {
+          console.trace("no game module");
           return;
         }
         if (this.xrSession && this.xrSession.isInSession && this.xrSession.isAR) {

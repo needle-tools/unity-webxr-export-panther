@@ -5,7 +5,8 @@
         "Unity.XR.Management",
         "Unity.Subsystem.Registration",
         "needle.weaver.webxr",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.XR.ARSubsystems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
