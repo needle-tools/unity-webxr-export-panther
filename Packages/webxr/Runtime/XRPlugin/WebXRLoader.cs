@@ -30,6 +30,7 @@ namespace WebXR
       #if UNITY_INPUT_SYSTEM
       InputSystem.RegisterLayout(typeof(XRHMD));
       InputSystem.RegisterLayout(typeof(HandheldARInputDevice));
+      InputSystem.RegisterLayout(typeof(WebXRHeadsetAndARDeviceCombined));
       InputSystem.RegisterLayout(typeof(XRController));
       InputSystem.RegisterLayout(typeof(OpenVROculusTouchController));
       InputSystem.RegisterLayout(typeof(WebXRControllerLayout));
@@ -40,7 +41,7 @@ namespace WebXR
       CreateSubsystem<WebXRSubsystemDescriptor, WebXRSubsystem>(subsystemDescriptors, typeof(WebXRSubsystem).FullName);
       CreateSubsystem<XRDisplaySubsystemDescriptor, XRDisplaySubsystem>(displaySubsystemDescriptors, XRDisplaySubsystem_Patch.Id);
       CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(inputSubsystemDescriptors, XRInputSubsystem_Patch.Id);
-      CreateSubsystem<XRCameraSubsystemDescriptor, WebXRCameraSubsystem>(cameraSubsystemDescriptors, WebXRCameraSubsystem.SubsystemId);
+      // CreateSubsystem<XRCameraSubsystemDescriptor, WebXRCameraSubsystem>(cameraSubsystemDescriptors, WebXRCameraSubsystem.SubsystemId);
       return WebXRSubsystem != null;
     }
     
@@ -66,10 +67,10 @@ namespace WebXR
       XRInputSubsystem.Start();
       WebXRSubsystem.Start();
 
-      var cam = XRCameraSubsystem;
-      if (cam != null)
-        XRCameraSubsystem.Start();
-      else Debug.LogError("Camera subsystem is null");
+      // var cam = XRCameraSubsystem;
+      // if (cam != null)
+      //   XRCameraSubsystem.Start();
+      // else Debug.LogWarning("Camera subsystem is null");
       return true;
     }
 

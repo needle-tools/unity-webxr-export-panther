@@ -103,9 +103,11 @@ namespace WebXR
 
       if (arDevice == null)
       {
-        arDevice = new MockInputDevice("WebXR-Device", XRNode.Head, "HandheldARInputDevice");
+        arDevice = new MockInputDevice("WebXR-Device", XRNode.Head, nameof(WebXRHeadsetAndARDeviceCombined));
         arDevice.AddFeature(CommonUsages.devicePosition, () => centerPosition);
         arDevice.AddFeature(CommonUsages.deviceRotation, () => centerRotation);
+        arDevice.AddFeature(CommonUsages.centerEyePosition, () => centerPosition);
+        arDevice.AddFeature(CommonUsages.centerEyeRotation, () => centerRotation);
         devices.Add(arDevice);
       }
     }

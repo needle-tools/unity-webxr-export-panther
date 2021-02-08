@@ -1,5 +1,6 @@
 ﻿#if UNITY_INPUT_SYSTEM
 
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
@@ -8,7 +9,36 @@ using UnityEngine.Scripting;
 
 namespace WebXR
 {
+	[Preserve]
+	[InputControlLayout(displayName = "WebXR Headset and AR Device combines")]
+	public class WebXRHeadsetAndARDeviceCombined : InputDevice
+	{
+		[InputControl(noisy = true)]
 		[Preserve]
+		public Vector3Control devicePosition { get; private set; }
+		[InputControl(noisy = true)]
+		[Preserve]
+		public QuaternionControl deviceRotation { get; private set; }
+		
+		[InputControl(noisy = true)]
+		[Preserve]
+		public Vector3Control centerEyePosition { get; private set; }
+		[InputControl(noisy = true)]
+		[Preserve]
+		public QuaternionControl centerEyeRotation { get; private set; }
+		
+		protected override void FinishSetup()
+		{
+			base.FinishSetup();
+
+			devicePosition = GetChildControl<Vector3Control>("devicePosition");
+			deviceRotation = GetChildControl<QuaternionControl>("deviceRotation");
+			centerEyePosition = GetChildControl<Vector3Control>("centerEyePosition");
+			centerEyeRotation = GetChildControl<QuaternionControl>("centerEyeRotation");
+		}
+	}
+
+	[Preserve]
 		[InputControlLayout(displayName = "WebXR Controller", commonUsages = new[] {"LeftHand", "RightHand"})]
 		public class WebXRControllerLayout : XRController
 		{
