@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using WebXR;
 
@@ -19,7 +20,6 @@ namespace Demo
 		private void OnValidate()
 		{
 			if (!Root) Root = GetComponentInParent<XRRig>()?.transform;
-			if (!PoseDriver) TryGetComponent(out PoseDriver);
 		}
 
 		private void Update()
