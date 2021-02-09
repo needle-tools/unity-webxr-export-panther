@@ -23,9 +23,12 @@ public class WebXRDemo : MonoBehaviour
 		if (Canvas) Canvas.SetActive(false);
 	}
 
+	[ContextMenu(nameof(OnToggleScale))]
 	private void OnToggleScale()
 	{
+#if !UNITY_EDITOR
 		if (WebXRSubsystem.xrState != WebXRState.AR) return;
+#endif
 		if (Scene.transform.localScale.x < normalScale.x)
 			Scene.transform.localScale = normalScale;
 		else
