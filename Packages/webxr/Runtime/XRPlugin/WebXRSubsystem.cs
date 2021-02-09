@@ -182,7 +182,9 @@ namespace WebXR
     // Cameras calculations helpers
     internal Matrix4x4 leftProjectionMatrix, rightProjectionMatrix;
     internal Vector3 centerPosition, leftPosition, rightPosition;
-    internal Quaternion centerRotation, leftRotation, rightRotation;
+    internal Quaternion centerRotation = Quaternion.Euler(Vector3.forward),
+      leftRotation = Quaternion.Euler(Vector3.forward),
+      rightRotation = Quaternion.Euler(Vector3.forward);
 
     // Shared array which we will load headset data in from webxr.jslib
     // Array stores 2 matrices, each 16 values, 2 Quaternions and 2 Vector3, stored linearly.
