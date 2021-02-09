@@ -9,6 +9,36 @@ using UnityEngine.Scripting;
 
 namespace WebXR
 {
+	/// <summary>
+	/// A Handheld AR device layout, for use with the Input System, representing a mobile AR device.
+	/// </summary>
+	[Preserve]
+	[InputControlLayout]
+	public class WebXRHandheldARInputDevice : UnityEngine.InputSystem.InputDevice
+	{
+		/// <summary>
+		/// The position in 3D space of the device.
+		/// </summary>
+		[Preserve]
+		[InputControl]
+		public Vector3Control devicePosition { get; private set; }
+
+		/// <summary>
+		/// The rotation in 3D space of the device.
+		/// </summary>
+		[Preserve]
+		[InputControl]
+		public QuaternionControl deviceRotation { get; private set; }
+
+		protected override void FinishSetup()
+		{
+			base.FinishSetup();
+
+			devicePosition = GetChildControl<Vector3Control>("devicePosition");
+			deviceRotation = GetChildControl<QuaternionControl>("deviceRotation");
+		}
+	}
+
 	[Preserve]
 	[InputControlLayout(displayName = "WebXR Headset and AR Device combines")]
 	public class WebXRHeadsetAndARDeviceCombined : InputDevice
@@ -16,17 +46,19 @@ namespace WebXR
 		[InputControl(noisy = true)]
 		[Preserve]
 		public Vector3Control devicePosition { get; private set; }
+
 		[InputControl(noisy = true)]
 		[Preserve]
 		public QuaternionControl deviceRotation { get; private set; }
-		
+
 		[InputControl(noisy = true)]
 		[Preserve]
 		public Vector3Control centerEyePosition { get; private set; }
+
 		[InputControl(noisy = true)]
 		[Preserve]
 		public QuaternionControl centerEyeRotation { get; private set; }
-		
+
 		protected override void FinishSetup()
 		{
 			base.FinishSetup();
@@ -38,70 +70,114 @@ namespace WebXR
 		}
 	}
 
+	/// <summary>
+	/// The base type of all XR head mounted displays.  This can help organize shared behaviour across all HMDs.
+	/// </summary>
+	[InputControlLayout(isGenericTypeOfDevice = true, displayName = "Web XR HMD")]
 	[Preserve]
-		[InputControlLayout(displayName = "WebXR Controller", commonUsages = new[] {"LeftHand", "RightHand"})]
-		public class WebXRControllerLayout : XRController
+	public class WebXRHMD : TrackedDevice
+	{
+		[InputControl(noisy = true)]
+		[Preserve]
+		public Vector3Control leftEyePosition { get; private set; }
+
+		[InputControl(noisy = true)]
+		[Preserve]
+		public QuaternionControl leftEyeRotation { get; private set; }
+
+		[InputControl(noisy = true)]
+		[Preserve]
+		public Vector3Control rightEyePosition { get; private set; }
+
+		[InputControl(noisy = true)]
+		[Preserve]
+		public QuaternionControl rightEyeRotation { get; private set; }
+
+		[InputControl(noisy = true)]
+		[Preserve]
+		public Vector3Control centerEyePosition { get; private set; }
+
+		[InputControl(noisy = true)]
+		[Preserve]
+		public QuaternionControl centerEyeRotation { get; private set; }
+
+		protected override void FinishSetup()
 		{
-			[Preserve]
-			[InputControl(aliases = new[] {"Primary2DAxis", "Joystick"})]
-			public Vector2Control thumbstick { get; private set; }
+			base.FinishSetup();
 
-			[Preserve] [InputControl] public AxisControl trigger { get; private set; }
-			[Preserve] [InputControl] public AxisControl grip { get; private set; }
-
-			[Preserve]
-			[InputControl(aliases = new[] {"A", "X", "Alternate"})]
-			public ButtonControl primaryButton { get; private set; }
-
-			[Preserve]
-			[InputControl(aliases = new[] {"B", "Y", "Primary"})]
-			public ButtonControl secondaryButton { get; private set; }
-
-			[Preserve]
-			[InputControl(aliases = new[] {"GripButton"})]
-			public ButtonControl gripPressed { get; private set; }
-
-			// [Preserve] [InputControl] public ButtonControl start { get; private set; }
-
-			[Preserve]
-			[InputControl(aliases = new[] {"JoystickOrPadPressed", "thumbstickClick"})]
-			public ButtonControl thumbstickClicked { get; private set; }
-
-			// [Preserve]
-			// [InputControl(aliases = new[] {"ATouched", "XTouched", "ATouch", "XTouch"})]
-			// public ButtonControl primaryTouched { get; private set; }
-			//
-			// [Preserve]
-			// [InputControl(aliases = new[] {"BTouched", "YTouched", "BTouch", "YTouch"})]
-			// public ButtonControl secondaryTouched { get; private set; }
-
-			// [Preserve]
-			// [InputControl(aliases = new[] {"indexTouch", "indexNearTouched"})]
-			// public AxisControl triggerTouched { get; private set; }
-
-			[Preserve]
-			[InputControl(aliases = new[] {"indexButton", "indexTouched", "triggerButton"})]
-			public ButtonControl triggerPressed { get; private set; }
-			
-			protected override void FinishSetup()
-			{
-				base.FinishSetup();
-
-				thumbstick = GetChildControl<Vector2Control>("thumbstick");
-				trigger = GetChildControl<AxisControl>("trigger");
-				// triggerTouched = GetChildControl<AxisControl>("triggerTouched");
-				// grip = GetChildControl<AxisControl>("grip");
-
-				primaryButton = GetChildControl<ButtonControl>("primaryButton");
-				secondaryButton = GetChildControl<ButtonControl>("secondaryButton");
-				// gripPressed = GetChildControl<ButtonControl>("gripPressed");
-				// start = GetChildControl<ButtonControl>("start");
-				thumbstickClicked = GetChildControl<ButtonControl>("thumbstickClicked");
-				// primaryTouched = GetChildControl<ButtonControl>("primaryTouched");
-				// secondaryTouched = GetChildControl<ButtonControl>("secondaryTouched");
-				// triggerPressed = GetChildControl<ButtonControl>("triggerPressed");
-			}
+			centerEyePosition = GetChildControl<Vector3Control>("centerEyePosition");
+			centerEyeRotation = GetChildControl<QuaternionControl>("centerEyeRotation");
+			leftEyePosition = GetChildControl<Vector3Control>("leftEyePosition");
+			leftEyeRotation = GetChildControl<QuaternionControl>("leftEyeRotation");
+			rightEyePosition = GetChildControl<Vector3Control>("rightEyePosition");
+			rightEyeRotation = GetChildControl<QuaternionControl>("rightEyeRotation");
 		}
+	}
+
+	[Preserve]
+	[InputControlLayout(displayName = "WebXR Controller", commonUsages = new[] {"LeftHand", "RightHand"})]
+	public class WebXRControllerLayout : XRController
+	{
+		[Preserve]
+		[InputControl(aliases = new[] {"Primary2DAxis", "Joystick"})]
+		public Vector2Control thumbstick { get; private set; }
+
+		[Preserve] [InputControl] public AxisControl trigger { get; private set; }
+		[Preserve] [InputControl] public AxisControl grip { get; private set; }
+
+		[Preserve]
+		[InputControl(aliases = new[] {"A", "X", "Alternate"})]
+		public ButtonControl primaryButton { get; private set; }
+
+		[Preserve]
+		[InputControl(aliases = new[] {"B", "Y", "Primary"})]
+		public ButtonControl secondaryButton { get; private set; }
+
+		[Preserve]
+		[InputControl(aliases = new[] {"GripButton"})]
+		public ButtonControl gripPressed { get; private set; }
+
+		// [Preserve] [InputControl] public ButtonControl start { get; private set; }
+
+		[Preserve]
+		[InputControl(aliases = new[] {"JoystickOrPadPressed", "thumbstickClick"})]
+		public ButtonControl thumbstickClicked { get; private set; }
+
+		// [Preserve]
+		// [InputControl(aliases = new[] {"ATouched", "XTouched", "ATouch", "XTouch"})]
+		// public ButtonControl primaryTouched { get; private set; }
+		//
+		// [Preserve]
+		// [InputControl(aliases = new[] {"BTouched", "YTouched", "BTouch", "YTouch"})]
+		// public ButtonControl secondaryTouched { get; private set; }
+
+		// [Preserve]
+		// [InputControl(aliases = new[] {"indexTouch", "indexNearTouched"})]
+		// public AxisControl triggerTouched { get; private set; }
+
+		[Preserve]
+		[InputControl(aliases = new[] {"indexButton", "indexTouched", "triggerButton"})]
+		public ButtonControl triggerPressed { get; private set; }
+
+		protected override void FinishSetup()
+		{
+			base.FinishSetup();
+
+			thumbstick = GetChildControl<Vector2Control>("thumbstick");
+			trigger = GetChildControl<AxisControl>("trigger");
+			// triggerTouched = GetChildControl<AxisControl>("triggerTouched");
+			// grip = GetChildControl<AxisControl>("grip");
+
+			primaryButton = GetChildControl<ButtonControl>("primaryButton");
+			secondaryButton = GetChildControl<ButtonControl>("secondaryButton");
+			// gripPressed = GetChildControl<ButtonControl>("gripPressed");
+			// start = GetChildControl<ButtonControl>("start");
+			thumbstickClicked = GetChildControl<ButtonControl>("thumbstickClicked");
+			// primaryTouched = GetChildControl<ButtonControl>("primaryTouched");
+			// secondaryTouched = GetChildControl<ButtonControl>("secondaryTouched");
+			// triggerPressed = GetChildControl<ButtonControl>("triggerPressed");
+		}
+	}
 }
 
 #endif

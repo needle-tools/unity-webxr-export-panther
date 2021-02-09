@@ -2,11 +2,14 @@
     "name": "WebXR",
     "rootNamespace": "",
     "references": [
-        "Unity.XR.Management",
-        "Unity.Subsystem.Registration",
         "needle.weaver.webxr",
+        "UnityEngine.SpatialTracking",
         "Unity.InputSystem",
-        "Unity.XR.ARSubsystems"
+        "Unity.Subsystem.Registration",
+        "Unity.XR.Management",
+        "Unity.XR.ARSubsystems",
+        "Unity.XR.ARFoundation",
+        "Unity.XR.Interaction.Toolkit"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -17,9 +20,24 @@
     "defineConstraints": [],
     "versionDefines": [
         {
+            "name": "com.unity.xr.interaction.toolkit",
+            "expression": "",
+            "define": "XR_TOOLKIT_INSTALLED"
+        },
+        {
             "name": "com.unity.inputsystem",
             "expression": "",
             "define": "UNITY_INPUT_SYSTEM"
+        },
+        {
+            "name": "com.unity.xr.arfoundation",
+            "expression": "",
+            "define": "AR_FOUNDATION_INSTALLED"
+        },
+        {
+            "name": "com.unity.xr.legacyinputhelpers",
+            "expression": "",
+            "define": "LEGACY_INPUT_HELPERS_INSTALLED"
         }
     ],
     "noEngineReferences": false

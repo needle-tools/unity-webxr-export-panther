@@ -208,7 +208,6 @@ GameObject:
   m_Component:
   - component: {fileID: 203353525}
   - component: {fileID: 203353520}
-  - component: {fileID: 203353524}
   - component: {fileID: 203353523}
   - component: {fileID: 203353522}
   - component: {fileID: 203353521}
@@ -326,18 +325,6 @@ MonoBehaviour:
   m_AutoFocus: 1
   m_LightEstimation: 0
   m_FacingDirection: 1
---- !u!114 &203353524
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 203353519}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e3c44306fb1e439a9f18b2212b8ab70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &203353525
 Transform:
   m_ObjectHideFlags: 0

@@ -27,15 +27,16 @@ namespace WebXR
 
     public override bool Initialize()
     {
-      #if UNITY_INPUT_SYSTEM
+#if UNITY_INPUT_SYSTEM
       InputSystem.RegisterLayout(typeof(XRHMD));
-      InputSystem.RegisterLayout(typeof(HandheldARInputDevice));
-      InputSystem.RegisterLayout(typeof(WebXRHeadsetAndARDeviceCombined));
       InputSystem.RegisterLayout(typeof(XRController));
       InputSystem.RegisterLayout(typeof(OpenVROculusTouchController));
+#endif
+      InputSystem.RegisterLayout(typeof(WebXRHMD));
+      InputSystem.RegisterLayout(typeof(WebXRHandheldARInputDevice));
+      InputSystem.RegisterLayout(typeof(WebXRHeadsetAndARDeviceCombined));
       InputSystem.RegisterLayout(typeof(WebXRControllerLayout));
       InputSystem.onDeviceChange += (arg, evt) => Debug.Log("Device " + arg + " " + evt);
-      #endif
       
       
       CreateSubsystem<WebXRSubsystemDescriptor, WebXRSubsystem>(subsystemDescriptors, typeof(WebXRSubsystem).FullName);
