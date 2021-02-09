@@ -855,7 +855,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 157000068c5c5604489ea49f366b51b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RotationFactor: 12
+  RotationFactor: {x: 25, y: 25}
   SpeedFactor: 2
   PoseDriver: {fileID: 811108165}
   Root: {fileID: 985650405}
