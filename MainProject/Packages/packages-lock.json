@@ -52,6 +52,13 @@
         "com.needle.weaver": "0.0.1-preview"
       }
     },
+    "com.unity.device-simulator": {
+      "version": "2.2.4-preview",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,

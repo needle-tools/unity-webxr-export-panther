@@ -6,19 +6,21 @@ using UnityEngine.SceneManagement;
 using UnityEngine.XR;
 using UnityEngine.XR.ARFoundation;
 using Object = UnityEngine.Object;
-
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 namespace WebXR
 {
 	public static class DevicesManager
 	{
+#if UNITY_WEBGL && !UNITY_EDITOR
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void Init()
 		{
 			SceneManager.sceneLoaded += OnSceneLoaded;
 		}
+#endif
 
 		private static void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
 		{
@@ -45,7 +47,10 @@ namespace WebXR
 			InternalCreateInputDevices();
 		}
 
-		private static Color preARBackgroundColor;
+
+		private static bool capturedCam;
+		private static Color background;
+		private static CameraClearFlags clear;
 
 		public static void OnXRStateChanged(WebXRState oldState, WebXRState state)
 		{
@@ -59,6 +64,7 @@ namespace WebXR
 					cameraDevice.Connect();
 					controllerLeft.Connect();
 					controllerRight.Connect();
+					SetCameraState(false);
 					XRDisplaySubsystem_Patch.AttachDisplayBehaviour<RenderVR>();
 					TrackedDevicesHelper.ResetTrackedPoseDrivers();
 					break;
@@ -67,29 +73,44 @@ namespace WebXR
 					WebXRSubsystem.StopViewerHitTest();
 					WebXRLoader.InputSubsystem.Stop();
 					WebXRLoader.DisplaySubsystem.Stop();
+					SetCameraState(false);
 					break;
 				case WebXRState.AR:
 					foreach (var dev in devices) dev.Disconnect();
-					var main = Camera.main;
-					if (!main) main = Object.FindObjectOfType<Camera>();
-					if (main && main != null)
-					{
-						preARBackgroundColor = main.backgroundColor;
-						main.backgroundColor = new Color(0, 0, 0, 0);
-					}
 
 					WebXRSubsystem.StartViewerHitTest();
 					WebXRLoader.InputSubsystem.Start();
 					WebXRLoader.DisplaySubsystem.Stop();
 					cameraDevice.Connect();
+					SetCameraState(true);
 					TrackedDevicesHelper.ResetTrackedPoseDrivers();
 					break;
 			}
 		}
 
+		private static void SetCameraState(bool passThrough)
+		{
+			var main = Camera.main;
+			if (!main) main = Object.FindObjectOfType<Camera>();
+			if (!main || main == null) return;
+			if (passThrough)
+			{
+				capturedCam = true;
+				clear = main.clearFlags;
+				background = main.backgroundColor;
+				main.clearFlags = CameraClearFlags.Nothing;
+				main.backgroundColor = new Color(0, 0, 0, 0);
+			}
+			else if(capturedCam)
+			{
+				main.clearFlags = clear;
+				main.backgroundColor = background;
+			}
+		}
+
 		public static void OnUpdatedData()
 		{
-			switch (WebXRSubsystem.Instance.xrState)
+			switch (WebXRSubsystem.xrState)
 			{
 				case WebXRState.VR:
 					cameraDevice?.UpdateDevice();
@@ -248,7 +269,7 @@ namespace WebXR
 			device.AddFeature(CommonUsages.isTracked, () => true);
 			device.AddFeature(CommonUsages.trackingState, () => InputTrackingState.Position | InputTrackingState.Rotation);
 			device.AddFeature(CommonUsages.devicePosition, () => controller?.position ?? Vector3.zero);
-			device.AddFeature(CommonUsages.deviceRotation, () => controller?.rotation * Quaternion.Euler(90, 0, 0) ?? Quaternion.identity);
+			device.AddFeature(CommonUsages.deviceRotation, () => controller?.rotation ?? Quaternion.identity);
 			device.AddFeature(CommonUsages.trigger, () => controller?.trigger ?? 0);
 			device.AddFeature(CommonUsages.triggerButton, () => controller?.trigger > .5f);
 			device.AddFeature(CommonUsages.grip, () => controller?.squeeze ?? 0);

@@ -82,17 +82,17 @@ namespace WebXR
         switchToEndXR = false;
         UpdateControllersOnEnd();
       }
-      if (this.xrState == WebXRState.NORMAL) return;
+      if (xrState == WebXRState.NORMAL) return;
       
       UpdateXRCameras();
 
-      if (this.xrState != WebXRState.NORMAL)
+      if (xrState != WebXRState.NORMAL)
       {
         if (GetHandFromHandsArray(0, ref leftHand)) OnHandUpdate?.Invoke(leftHand);
         if (GetHandFromHandsArray(1, ref rightHand)) OnHandUpdate?.Invoke(rightHand);
       }
 
-      if (this.xrState != WebXRState.NORMAL)
+      if (xrState != WebXRState.NORMAL)
       {
         if (GetGamepadFromControllersArray(0, ref controller1)) 
           OnControllerUpdate?.Invoke(controller1);
@@ -101,7 +101,7 @@ namespace WebXR
           OnControllerUpdate?.Invoke(controller2);
       }
 
-      if (this.xrState == WebXRState.AR)
+      if (xrState == WebXRState.AR)
       {
         if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose)) 
           OnViewerHitTestUpdate?.Invoke(viewerHitTestPose);
@@ -127,7 +127,7 @@ namespace WebXR
 
     private void UpdateXRCameras()
     {
-      if (this.xrState == WebXRState.NORMAL) return;
+      if (xrState == WebXRState.NORMAL) return;
       
       GetMatrixFromSharedArray(0, ref leftProjectionMatrix);
       GetMatrixFromSharedArray(16, ref rightProjectionMatrix);
@@ -156,7 +156,7 @@ namespace WebXR
 
     internal static WebXRSubsystem Instance;
 
-    internal WebXRState xrState = WebXRState.NORMAL;
+    public static WebXRState xrState { get; private set; } = WebXRState.NORMAL;
 
     #region EVENTS
     public delegate void XRCapabilitiesUpdate(WebXRDisplayCapabilities capabilities);
@@ -239,8 +239,8 @@ namespace WebXR
 
     private void setXrState(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
     {
-      var prevState = this.xrState;
-      this.xrState = state;
+      var prevState = xrState;
+      xrState = state;
       viewerHitTestOn = false;
       OnXRChange?.Invoke(state, viewsCount, leftRect, rightRect);
       DevicesManager.OnXRStateChanged(prevState, state);
@@ -278,7 +278,7 @@ namespace WebXR
 
     public static void StartViewerHitTest()
     {
-      if (Instance.xrState == WebXRState.AR && !Instance.viewerHitTestOn)
+      if (xrState == WebXRState.AR && !Instance.viewerHitTestOn)
       {
         Instance.viewerHitTestOn = true;
         Native.ToggleViewerHitTest();
@@ -287,7 +287,7 @@ namespace WebXR
 
     public static void StopViewerHitTest()
     {
-      if (Instance.xrState == WebXRState.AR && Instance.viewerHitTestOn)
+      if (xrState == WebXRState.AR && Instance.viewerHitTestOn)
       {
         Instance.viewerHitTestOn = false;
         Native.ToggleViewerHitTest();

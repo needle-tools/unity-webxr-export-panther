@@ -6,7 +6,7 @@ namespace WebXR
   {
       public static WebXRManager Instance { get; private set; }
 
-      public WebXRState XRState => subsystem.xrState;
+      public WebXRState XRState => WebXRSubsystem.xrState;
       
       public static event WebXRSubsystem.XRCapabilitiesUpdate OnXRCapabilitiesUpdate
       {

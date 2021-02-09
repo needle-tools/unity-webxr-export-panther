@@ -16,6 +16,7 @@
     "com.de-panther.webxr-interactions": "file:../../Packages/webxr-interactions",
     "com.needle.weaver": "file:../../../../../../package",
     "com.needle.weaver.webxr": "file:../../../../package",
+    "com.unity.device-simulator": "2.2.4-preview",
     "com.unity.ide.rider": "3.0.3",
     "com.unity.ide.visualstudio": "2.0.5",
     "com.unity.ide.vscode": "1.2.3",
