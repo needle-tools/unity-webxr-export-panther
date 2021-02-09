@@ -4,6 +4,7 @@ using AOT;
 using needle.weaver.webxr;
 using UnityEngine;
 using UnityEngine.XR;
+using UnityEngine.XR.ARSubsystems;
 using Utils;
 using CommonUsages = UnityEngine.XR.CommonUsages;
 using Object = UnityEngine.Object;
@@ -50,9 +51,7 @@ namespace WebXR
       Native.InitXRSharedArray(sharedArray, sharedArray.Length);
       Native.ListenWebXRData();
       
-      CreateInputDevices();
-      foreach (var dev in devices) dev.Connect();
-      PlayerLoopHelper.AddUpdateCallback(this.GetType(), this.OnUpdate, PlayerLoopHelper.Stages.EarlyUpdate);
+      PlayerLoopHelper.AddUpdateCallback(this, this.OnUpdate, PlayerLoopHelper.Stages.EarlyUpdate);
     }
 
     public override void Stop()
@@ -63,8 +62,7 @@ namespace WebXR
 #endif
       _running = false;
       Instance = null;
-      foreach (var dev in devices) dev.Disconnect();
-      PlayerLoopHelper.RemoveUpdateDelegate(this.GetType(), this.OnUpdate);
+      PlayerLoopHelper.RemoveUpdateDelegate(this, this.OnUpdate);
     }
 
     protected override void OnDestroy()
@@ -77,78 +75,6 @@ namespace WebXR
       Instance = null;
     }
 
-    private MockInputDevice headset, arDevice, controllerLeft, controllerRight;
-    private readonly List<MockInputDevice> devices = new List<MockInputDevice>();
-
-    private void CreateInputDevices()
-    {
-      if (headset == null)
-      {
-        headset = MockDeviceBuilder.CreateHeadset(
-          () => true,
-          () => centerPosition,
-          () => centerRotation,
-          null,
-          () => leftPosition,
-          () => leftRotation,
-          () => rightPosition,
-          () => rightRotation
-        );
-        devices.Add(headset);
-      }
-      if (controllerRight == null)
-      {
-        controllerRight = CreateController(XRNode.RightHand, controller1, InputDeviceCharacteristics.Right);
-        devices.Add(controllerRight);
-      }
-      if (controllerLeft == null)
-      {
-        controllerLeft = CreateController(XRNode.LeftHand, controller2, InputDeviceCharacteristics.Left);
-        devices.Add(controllerLeft);
-      }
-
-      if (arDevice == null)
-      {
-        arDevice = new MockInputDevice("WebXR-Device", XRNode.Head, nameof(WebXRHeadsetAndARDeviceCombined));
-        arDevice.AddFeature(CommonUsages.devicePosition, () => centerPosition);
-        arDevice.AddFeature(CommonUsages.deviceRotation, () => centerRotation);
-        arDevice.AddFeature(CommonUsages.centerEyePosition, () => centerPosition);
-        arDevice.AddFeature(CommonUsages.centerEyeRotation, () => centerRotation);
-        devices.Add(arDevice);
-      }
-    }
-
-    private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
-    {
-      var device = new MockInputDevice("<XRController>", node, nameof(WebXRControllerLayout))
-      {
-        SerialNumber = "1.0.0",
-        Manufacturer = "Needle",
-        DeviceCharacteristics = InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | side
-      };
-      device.AddFeature(CommonUsages.isTracked, () => true);
-      device.AddFeature(CommonUsages.trackingState, () => InputTrackingState.Position | InputTrackingState.Rotation);
-      device.AddFeature(CommonUsages.devicePosition, () => controller?.position ?? Vector3.zero);
-      device.AddFeature(CommonUsages.deviceRotation, () => controller?.rotation * Quaternion.Euler(90,0,0) ?? Quaternion.identity); 
-      device.AddFeature(CommonUsages.trigger, () => controller?.trigger ?? 0);
-      device.AddFeature(CommonUsages.triggerButton, () => controller?.trigger > .5f);
-      device.AddFeature(CommonUsages.grip, () => controller?.squeeze ?? 0);
-      device.AddFeature(CommonUsages.gripButton, () => controller?.squeeze > .5f);
-      // TODO: not sure about the touchpads / primary or secondary axis inputs
-      device.AddFeature(CommonUsages.primary2DAxisTouch, () => controller.touchpad > .5f);
-      device.AddFeature(CommonUsages.primary2DAxis, () => controller != null ? new Vector2(controller.thumbstickX, controller.thumbstickY) : Vector2.zero);
-      device.AddFeature(CommonUsages.primary2DAxisClick, () => controller?.touchpad > .5f);
-      device.AddFeature(CommonUsages.secondary2DAxisTouch, () => controller.touchpad > .5f);
-      device.AddFeature(CommonUsages.secondary2DAxis, () => controller != null ? new Vector2(controller.touchpadX, controller.touchpadY) : Vector2.zero);
-      device.AddFeature(CommonUsages.secondary2DAxisClick, () => controller.touchpad > .5f);
-      device.AddFeature(CommonUsages.primaryButton, () => controller?.buttonA > .5f);
-      device.AddFeature(CommonUsages.secondaryButton, () => controller?.buttonB > .5f);
-      // openvr 
-      device.AddFeature(new InputFeatureUsage<float>("thumbstickClicked"), () => controller?.thumbstick ?? 0);
-      
-      return device;
-    }
-
     private void OnUpdate()
     {
       if (switchToEndXR)
@@ -159,37 +85,29 @@ namespace WebXR
       if (this.xrState == WebXRState.NORMAL) return;
       
       UpdateXRCameras();
-      
-      var hasHandsData = false;
+
       if (this.xrState != WebXRState.NORMAL)
       {
         if (GetHandFromHandsArray(0, ref leftHand)) OnHandUpdate?.Invoke(leftHand);
         if (GetHandFromHandsArray(1, ref rightHand)) OnHandUpdate?.Invoke(rightHand);
-        hasHandsData = leftHand.enabled || rightHand.enabled;
       }
 
       if (this.xrState != WebXRState.NORMAL)
       {
-        if(xrState == WebXRState.VR) headset.UpdateDevice();
-        
-        if (GetGamepadFromControllersArray(0, ref controller1))
-        {
+        if (GetGamepadFromControllersArray(0, ref controller1)) 
           OnControllerUpdate?.Invoke(controller1);
-          controllerLeft.UpdateDevice();
-        }
 
-        if (GetGamepadFromControllersArray(1, ref controller2))
-        {
+        if (GetGamepadFromControllersArray(1, ref controller2)) 
           OnControllerUpdate?.Invoke(controller2);
-          controllerRight.UpdateDevice();
-        }
       }
 
       if (this.xrState == WebXRState.AR)
       {
-        arDevice.UpdateDevice();
-        if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose)) OnViewerHitTestUpdate?.Invoke(viewerHitTestPose);
+        if (GetHitTestPoseFromViewerHitTestPoseArray(ref viewerHitTestPose)) 
+          OnViewerHitTestUpdate?.Invoke(viewerHitTestPose);
       }
+
+      DevicesManager.OnUpdatedData();
     }
 
     private void UpdateControllersOnEnd()
@@ -223,7 +141,6 @@ namespace WebXR
       
       XRDisplaySubsystem_Patch.Instance.ProjectionLeft = leftProjectionMatrix;
       XRDisplaySubsystem_Patch.Instance.ProjectionRight = rightProjectionMatrix;
-      
 
       OnHeadsetUpdate?.Invoke(
         leftProjectionMatrix,
@@ -237,7 +154,7 @@ namespace WebXR
     private bool _running;
     public override bool running => _running;
 
-    private static WebXRSubsystem Instance;
+    internal static WebXRSubsystem Instance;
 
     internal WebXRState xrState = WebXRState.NORMAL;
 
@@ -263,9 +180,9 @@ namespace WebXR
 
     #region DATA
     // Cameras calculations helpers
-    private Matrix4x4 leftProjectionMatrix, rightProjectionMatrix;
-    private Vector3 centerPosition, leftPosition, rightPosition;
-    private Quaternion centerRotation, leftRotation, rightRotation;
+    internal Matrix4x4 leftProjectionMatrix, rightProjectionMatrix;
+    internal Vector3 centerPosition, leftPosition, rightPosition;
+    internal Quaternion centerRotation, leftRotation, rightRotation;
 
     // Shared array which we will load headset data in from webxr.jslib
     // Array stores 2 matrices, each 16 values, 2 Quaternions and 2 Vector3, stored linearly.
@@ -283,10 +200,10 @@ namespace WebXR
     private bool viewerHitTestOn = false;
     private bool switchToEndXR = false;
 
-    private WebXRHandData leftHand = new WebXRHandData();
-    private WebXRHandData rightHand = new WebXRHandData();
-    private WebXRControllerData controller1 = new WebXRControllerData();
-    private WebXRControllerData controller2 = new WebXRControllerData();
+    internal WebXRHandData leftHand = new WebXRHandData();
+    internal WebXRHandData rightHand = new WebXRHandData();
+    internal WebXRControllerData controller1 = new WebXRControllerData();
+    internal WebXRControllerData controller2 = new WebXRControllerData();
     private WebXRHitPoseData viewerHitTestPose = new WebXRHitPoseData();
     private WebXRDisplayCapabilities capabilities = new WebXRDisplayCapabilities();
     #endregion
@@ -318,46 +235,13 @@ namespace WebXR
       controller2.profiles = controllersProfiles.conrtoller2;
     }
 
-    private Color preARBackgroundColor;
     private void setXrState(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
     {
+      var prevState = this.xrState;
       this.xrState = state;
       viewerHitTestOn = false;
       OnXRChange?.Invoke(state, viewsCount, leftRect, rightRect);
-
-      switch (this.xrState)
-      {
-        case WebXRState.VR:
-          foreach(var dev in devices) dev.Disconnect();
-          StopViewerHitTest();
-          WebXRLoader.InputSubsystem.Start();
-          WebXRLoader.DisplaySubsystem.Start();
-          headset.Connect();
-          controllerLeft.Connect();
-          controllerRight.Connect();
-          XRDisplaySubsystem_Patch.AttachDisplayBehaviour<RenderVR>();
-          break;
-        case WebXRState.NORMAL:
-          foreach(var dev in devices) dev.Disconnect();
-          StopViewerHitTest();
-          WebXRLoader.InputSubsystem.Stop();
-          WebXRLoader.DisplaySubsystem.Stop();
-          break;
-        case WebXRState.AR:
-          foreach(var dev in devices) dev.Disconnect();
-          var main = Camera.main;
-          if (!main) main = Object.FindObjectOfType<Camera>();
-          if (main)
-          {
-            preARBackgroundColor = main.backgroundColor;
-            main.backgroundColor = new Color(0, 0, 0, 0);
-          }
-          StartViewerHitTest();
-          WebXRLoader.InputSubsystem.Start();
-          WebXRLoader.DisplaySubsystem.Stop();
-          arDevice.Connect();
-          break;
-      }
+      DevicesManager.OnXRStateChanged(prevState, state);
     }
 
     // received start AR from WebXR browser
