@@ -37,7 +37,7 @@ namespace Demo
 			{
 				var delta = mouse.delta.ReadValue();
 				if (delta.magnitude > 0)
-					_delta = Vector2.Lerp(_delta, delta, Time.deltaTime / .5f);
+					_delta = Vector2.Lerp(_delta, delta * -1, Time.deltaTime / .5f);
 			}
 
 			if (Touchscreen.current != null)
