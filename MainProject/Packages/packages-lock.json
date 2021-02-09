@@ -160,6 +160,15 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.textmeshpro": {
+      "version": "3.0.3",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.timeline": {
       "version": "1.2.16",
       "depth": 0,
@@ -176,7 +185,13 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
-    "com.unity.xr-interaction-toolkit-example": {
+    "com.unity.xr-interaction-toolkit-ar-example": {
+      "version": "file:../../Submodules/XR-Interaction-Toolkit-Examples/AR/Assets/package",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
+    "com.unity.xr-interaction-toolkit-vr-example": {
       "version": "file:../../Submodules/XR-Interaction-Toolkit-Examples/VR/Assets/package",
       "depth": 0,
       "source": "local",
