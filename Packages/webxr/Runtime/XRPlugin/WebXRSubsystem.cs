@@ -37,7 +37,9 @@ namespace WebXR
     public override void Start()
     {
       if (running) return;
+#if DEVELOPMENT_BUILD
       Debug.Log("Start " + nameof(WebXRSubsystem));
+#endif
       _running = true;
       Instance = this;
       
@@ -56,7 +58,9 @@ namespace WebXR
     public override void Stop()
     {
       if (!_running) return;
+#if DEVELOPMENT_BUILD
       Debug.Log("Stop " + nameof(WebXRSubsystem));
+#endif
       _running = false;
       Instance = null;
       foreach (var dev in devices) dev.Disconnect();
@@ -66,7 +70,9 @@ namespace WebXR
     protected override void OnDestroy()
     {
       if (!running) return;
+#if DEVELOPMENT_BUILD
       Debug.Log("Destroy " + nameof(WebXRSubsystem));
+#endif
       _running = false;
       Instance = null;
     }
@@ -384,25 +390,25 @@ namespace WebXR
       Instance.setXrState(WebXRState.NORMAL, 1, new Rect(), new Rect());
     }
 
-    public void StartViewerHitTest()
+    public static void StartViewerHitTest()
     {
-      if (xrState == WebXRState.AR && !viewerHitTestOn)
+      if (Instance.xrState == WebXRState.AR && !Instance.viewerHitTestOn)
       {
-        viewerHitTestOn = true;
+        Instance.viewerHitTestOn = true;
         Native.ToggleViewerHitTest();
       }
     }
 
-    public void StopViewerHitTest()
+    public static void StopViewerHitTest()
     {
-      if (xrState == WebXRState.AR && viewerHitTestOn)
+      if (Instance.xrState == WebXRState.AR && Instance.viewerHitTestOn)
       {
-        viewerHitTestOn = false;
+        Instance.viewerHitTestOn = false;
         Native.ToggleViewerHitTest();
       }
     }
 
-    public void HapticPulse(WebXRControllerHand hand, float intensity, float duration)
+    public static void HapticPulse(WebXRControllerHand hand, float intensity, float duration)
     {
       Native.ControllerPulse((int)hand, intensity, duration);
     }

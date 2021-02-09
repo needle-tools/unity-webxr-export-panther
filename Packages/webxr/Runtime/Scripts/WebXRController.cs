@@ -385,7 +385,7 @@ namespace WebXR
     {
       if (WebXRManager.Instance.isSubsystemAvailable)
       {
-        WebXRManager.Instance.HapticPulse(hand, intensity, durationMilliseconds);
+        WebXRManager.HapticPulse(hand, intensity, durationMilliseconds);
       }
 #if UNITY_EDITOR || !UNITY_WEBGL
       else if (inputDevice != null && hapticCapabilities != null

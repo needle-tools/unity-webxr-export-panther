@@ -44,19 +44,19 @@ namespace WebXR
           remove => WebXRSubsystem.OnViewerHitTestUpdate -= value;
       }
       
-      public void HapticPulse(WebXRControllerHand hand, float intensity, float duration)
+      public static void HapticPulse(WebXRControllerHand hand, float intensity, float duration)
       {
-          subsystem.HapticPulse(hand, intensity, duration);
+          WebXRSubsystem.HapticPulse(hand, intensity, duration);
       }
 
       public void StartViewerHitTest()
       {
-          subsystem.StartViewerHitTest();
+          WebXRSubsystem.StartViewerHitTest();
       }
 
       public void StopViewerHitTest()
       {
-          subsystem.StopViewerHitTest();
+          WebXRSubsystem.StopViewerHitTest();
       }
       
 #if !UNITY_EDITOR && UNITY_WEBGL
