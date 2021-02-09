@@ -137,7 +137,7 @@ namespace WebXR
       GetVector3FromSharedArray(43, ref rightPosition);
 
       centerPosition = xrState == WebXRState.VR || viewsCount > 1 ? Vector3.Lerp(leftPosition, rightPosition, .5f) : leftPosition;
-      centerRotation = xrState == WebXRState.VR || viewsCount > 1 ? Quaternion.Lerp(leftRotation, rightRotation, .5f) : leftRotation;
+      centerRotation = leftRotation;
       
       XRDisplaySubsystem_Patch.Instance.ProjectionLeft = leftProjectionMatrix;
       XRDisplaySubsystem_Patch.Instance.ProjectionRight = rightProjectionMatrix;
