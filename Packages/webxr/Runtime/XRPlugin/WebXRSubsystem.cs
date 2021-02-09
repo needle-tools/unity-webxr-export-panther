@@ -136,8 +136,8 @@ namespace WebXR
       GetVector3FromSharedArray(40, ref leftPosition);
       GetVector3FromSharedArray(43, ref rightPosition);
 
-      centerPosition = Vector3.Lerp(leftPosition, rightPosition, .5f);
-      centerRotation = Quaternion.Lerp(leftRotation, rightRotation, .5f);
+      centerPosition = xrState == WebXRState.VR || viewsCount > 1 ? Vector3.Lerp(leftPosition, rightPosition, .5f) : leftPosition;
+      centerRotation = xrState == WebXRState.VR || viewsCount > 1 ? Quaternion.Lerp(leftRotation, rightRotation, .5f) : leftRotation;
       
       XRDisplaySubsystem_Patch.Instance.ProjectionLeft = leftProjectionMatrix;
       XRDisplaySubsystem_Patch.Instance.ProjectionRight = rightProjectionMatrix;
@@ -178,7 +178,8 @@ namespace WebXR
     public static event HitTestUpdate OnViewerHitTestUpdate;
     #endregion
 
-    #region DATA
+    #region DATA    
+    private static int viewsCount;
     // Cameras calculations helpers
     internal Matrix4x4 leftProjectionMatrix, rightProjectionMatrix;
     internal Vector3 centerPosition, leftPosition, rightPosition;
@@ -237,12 +238,13 @@ namespace WebXR
       controller2.profiles = controllersProfiles.conrtoller2;
     }
 
-    private void setXrState(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
+    private void setXrState(WebXRState state, int _viewsCount, Rect leftRect, Rect rightRect)
     {
       var prevState = xrState;
       xrState = state;
       viewerHitTestOn = false;
-      OnXRChange?.Invoke(state, viewsCount, leftRect, rightRect);
+      viewsCount = _viewsCount;
+      OnXRChange?.Invoke(state, _viewsCount, leftRect, rightRect);
       DevicesManager.OnXRStateChanged(prevState, state);
     }
 

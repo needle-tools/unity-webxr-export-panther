@@ -77,7 +77,7 @@ namespace Demo
 			// delta 
 			// delta *= 100;
 			var rotation = transform.localRotation.eulerAngles;
-			rotation += new Vector3(-delta.y, -delta.x, 0) * (Time.deltaTime);
+			rotation += new Vector3(delta.y, -delta.x, 0) * (Time.deltaTime);
 			transform.localRotation = Quaternion.Euler(rotation);
 		}
 	}
