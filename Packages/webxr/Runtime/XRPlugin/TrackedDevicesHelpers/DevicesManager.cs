@@ -58,9 +58,6 @@ namespace WebXR
 			{
 				case WebXRState.VR:
 					foreach (var dev in devices) dev.Disconnect();
-					WebXRSubsystem.StopViewerHitTest();
-					WebXRLoader.InputSubsystem.Start();
-					WebXRLoader.DisplaySubsystem.Start();
 					cameraDevice.Connect();
 					controllerLeft.Connect();
 					controllerRight.Connect();
@@ -70,17 +67,10 @@ namespace WebXR
 					break;
 				case WebXRState.NORMAL:
 					foreach (var dev in devices) dev.Disconnect();
-					WebXRSubsystem.StopViewerHitTest();
-					WebXRLoader.InputSubsystem.Stop();
-					WebXRLoader.DisplaySubsystem.Stop();
 					SetCameraState(false);
 					break;
 				case WebXRState.AR:
 					foreach (var dev in devices) dev.Disconnect();
-
-					WebXRSubsystem.StartViewerHitTest();
-					WebXRLoader.InputSubsystem.Start();
-					WebXRLoader.DisplaySubsystem.Stop();
 					cameraDevice.Connect();
 					SetCameraState(true);
 					TrackedDevicesHelper.ResetTrackedPoseDrivers();

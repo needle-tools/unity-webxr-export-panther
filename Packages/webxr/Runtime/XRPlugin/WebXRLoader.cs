@@ -68,10 +68,10 @@ namespace WebXR
       XRInputSubsystem.Start();
       WebXRSubsystem.Start();
 
-      // var cam = XRCameraSubsystem;
-      // if (cam != null)
-      //   XRCameraSubsystem.Start();
-      // else Debug.LogWarning("Camera subsystem is null");
+      var cam = XRCameraSubsystem;
+      if (cam != null)
+        XRCameraSubsystem.Start();
+      else Debug.LogError("Camera subsystem is null");
       return true;
     }
 
@@ -80,7 +80,7 @@ namespace WebXR
       WebXRSubsystem.Stop();
       XRDisplaySubsystem.Stop();
       XRInputSubsystem.Stop();
-      // XRCameraSubsystem.Stop();
+      XRCameraSubsystem.Stop();
       return base.Stop();
     }
 
@@ -89,7 +89,7 @@ namespace WebXR
       WebXRSubsystem.Destroy();
       XRDisplaySubsystem.Destroy();
       XRInputSubsystem.Destroy();
-      // XRCameraSubsystem.Destroy();
+      XRCameraSubsystem.Destroy();
       return base.Deinitialize();
     }
   }

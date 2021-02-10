@@ -244,6 +244,24 @@ namespace WebXR
       xrState = state;
       viewerHitTestOn = false;
       viewsCount = _viewsCount;
+      switch (state)
+      {
+        case WebXRState.VR:
+          StopViewerHitTest();
+          WebXRLoader.InputSubsystem.Start();
+          WebXRLoader.DisplaySubsystem.Start();
+          break;
+        case WebXRState.NORMAL:
+          StopViewerHitTest();
+          WebXRLoader.InputSubsystem.Stop();
+          WebXRLoader.DisplaySubsystem.Stop();
+          break;
+        case WebXRState.AR:
+          StartViewerHitTest();
+          WebXRLoader.InputSubsystem.Start();
+          WebXRLoader.DisplaySubsystem.Stop();
+          break;
+      }
       OnXRChange?.Invoke(state, _viewsCount, leftRect, rightRect);
       DevicesManager.OnXRStateChanged(prevState, state);
     }
