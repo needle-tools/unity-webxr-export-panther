@@ -14,7 +14,7 @@ namespace WebXR
           remove => WebXRSubsystem.OnXRCapabilitiesUpdate -= value;
       }
 
-      public static event WebXRSubsystem.XRChange OnXRChange
+      public static event WebXRSubsystem.XRChangeDel OnXRChange
       {
           add => WebXRSubsystem.OnXRChange += value;
           remove => WebXRSubsystem.OnXRChange -= value;

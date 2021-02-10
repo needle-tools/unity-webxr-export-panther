@@ -14,13 +14,14 @@ namespace WebXR
 {
 	public static class DevicesManager
 	{
+		
 #if UNITY_WEBGL && !UNITY_EDITOR
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
 		private static void Init()
 		{
 			SceneManager.sceneLoaded += OnSceneLoaded;
 		}
-#endif
 
 		private static void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
 		{
@@ -47,11 +48,6 @@ namespace WebXR
 			InternalCreateInputDevices();
 		}
 
-
-		private static bool capturedCam;
-		private static Color background;
-		private static CameraClearFlags clear;
-
 		public static void OnXRStateChanged(WebXRState oldState, WebXRState state)
 		{
 			switch (state)
@@ -61,40 +57,21 @@ namespace WebXR
 					cameraDevice.Connect();
 					controllerLeft.Connect();
 					controllerRight.Connect();
-					SetCameraState(false);
+					CameraHelper.SetCameraClearFlags(false);
 					XRDisplaySubsystem_Patch.AttachDisplayBehaviour<RenderVR>();
 					TrackedDevicesHelper.ResetTrackedPoseDrivers();
 					break;
 				case WebXRState.NORMAL:
 					foreach (var dev in devices) dev.Disconnect();
-					SetCameraState(false);
+					CameraHelper.SetCameraClearFlags(false);
+					CameraHelper.FixRotationAfterXR();
 					break;
 				case WebXRState.AR:
 					foreach (var dev in devices) dev.Disconnect();
 					cameraDevice.Connect();
-					SetCameraState(true);
+					CameraHelper.SetCameraClearFlags(true);
 					TrackedDevicesHelper.ResetTrackedPoseDrivers();
 					break;
-			}
-		}
-
-		private static void SetCameraState(bool passThrough)
-		{
-			var main = Camera.main;
-			if (!main) main = Object.FindObjectOfType<Camera>();
-			if (!main || main == null) return;
-			if (passThrough)
-			{
-				capturedCam = true;
-				clear = main.clearFlags;
-				background = main.backgroundColor;
-				main.clearFlags = CameraClearFlags.Nothing;
-				main.backgroundColor = new Color(0, 0, 0, 0);
-			}
-			else if(capturedCam)
-			{
-				main.clearFlags = clear;
-				main.backgroundColor = background;
 			}
 		}
 

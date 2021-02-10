@@ -162,8 +162,9 @@ namespace WebXR
     public delegate void XRCapabilitiesUpdate(WebXRDisplayCapabilities capabilities);
     public static event XRCapabilitiesUpdate OnXRCapabilitiesUpdate;
 
-    public delegate void XRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect);
-    public static event XRChange OnXRChange;
+    public delegate void XRChangeDel(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect);
+    public static event XRChangeDel OnXRChange;
+    public static event Action<WebXRState> XRChange;
 
     public delegate void HeadsetUpdate(Matrix4x4 leftProjectionMatrix, Matrix4x4 rightProjectionMatrix, Quaternion leftRotation, Quaternion rightRotation, Vector3 leftPosition, Vector3 rightPosition);
     public static event HeadsetUpdate OnHeadsetUpdate;

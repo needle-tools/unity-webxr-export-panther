@@ -20,6 +20,7 @@ namespace Demo
 		private void OnValidate()
 		{
 			if (!Root) Root = GetComponentInParent<XRRig>()?.transform;
+			if (!Root) Root = transform;
 		}
 
 		private void Update()

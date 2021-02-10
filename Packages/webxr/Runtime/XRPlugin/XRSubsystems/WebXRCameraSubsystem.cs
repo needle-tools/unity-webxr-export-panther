@@ -41,7 +41,6 @@ namespace WebXR
 			{
 				Debug.LogError("Failed registering failed registering " + cameraSubsystemCinfo.id);
 			}
-			else Debug.Log("registered descriptor " + cameraSubsystemCinfo.id);
 #endif
 		}
 
