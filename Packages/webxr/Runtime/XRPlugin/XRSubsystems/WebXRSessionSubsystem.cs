@@ -15,8 +15,10 @@ namespace WebXR
 			XRSessionSubsystemDescriptor.RegisterDescriptor(new XRSessionSubsystemDescriptor.Cinfo
 			{
 				id = SubsystemId,
+#if !UNITY_2019_4
 				providerType = typeof(XRProvider),
 				subsystemTypeOverride = typeof(WebXRSessionSubsystem),
+#endif
 				supportsInstall = true,
 				supportsMatchFrameRate = true,
 			});
@@ -37,5 +39,11 @@ namespace WebXR
 			public override Feature currentTrackingMode { get; }
 			public override IntPtr nativePtr { get; }
 		}
+#if UNITY_2019_4
+		protected override Provider CreateProvider()
+		{
+			return new XRProvider();
+		}
+#endif
 	}
 }

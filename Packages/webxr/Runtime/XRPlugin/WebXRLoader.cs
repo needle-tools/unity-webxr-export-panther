@@ -44,22 +44,21 @@ namespace WebXR
 			InputSystem.RegisterLayout(typeof(WebXRHeadsetAndARDeviceCombined));
 			InputSystem.RegisterLayout(typeof(WebXRControllerLayout));
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-			InputSystem.onDeviceChange += (arg, evt) =>
-			{
-				Debug.Log("Device " + arg + " " + evt);
-			};
+			InputSystem.onDeviceChange += (arg, evt) => { Debug.Log("Device " + arg + " " + evt); };
 #endif
 #endif
 
 			CreateSubsystem<WebXRSubsystemDescriptor, WebXRSubsystem>(subsystemDescriptors, typeof(WebXRSubsystem).FullName);
 			CreateSubsystem<XRDisplaySubsystemDescriptor, XRDisplaySubsystem>(displaySubsystemDescriptors, XRDisplaySubsystem_Patch.Id);
 			CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(inputSubsystemDescriptors, XRInputSubsystem_Patch.Id);
+#if !UNITY_2019_4
 			CreateSubsystem<XRSessionSubsystemDescriptor, XRSessionSubsystem>(sessionSubsystemDescriptors, WebXRSessionSubsystem.SubsystemId);
 			CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>(cameraSubsystemDescriptors, WebXRCameraSubsystem.SubsystemId);
 			CreateSubsystem<XRPlaneSubsystemDescriptor, XRPlaneSubsystem>(planeSubsystemDescriptors, WebXRPlaneSubsystem.SubsystemId);
 			CreateSubsystem<XRRaycastSubsystemDescriptor, XRRaycastSubsystem>(raycastSubsystemDescriptors, WebXRRaycastSubsystem.SubsystemId);
 			CreateSubsystem<XRImageTrackingSubsystemDescriptor, XRImageTrackingSubsystem>(imageTrackingSubsystemDescriptors,
 				WebXRImageTrackingSubsystem.SubsystemId);
+#endif
 
 			return WebXRSubsystem != null;
 		}
@@ -85,11 +84,13 @@ namespace WebXR
 
 			XRInputSubsystem.Start();
 			WebXRSubsystem.Start();
+#if !UNITY_2019_4
 			XRSessionSubsystem.Start();
 			XRCameraSubsystem.Start();
 			XRPlaneSubsystem.Start();
 			XRRaycastSubsystem.Start();
 			XRImageTrackingSubsystem.Start();
+#endif
 			return true;
 		}
 

@@ -20,8 +20,10 @@ namespace WebXR
 			XRImageTrackingSubsystemDescriptor.Create(new XRImageTrackingSubsystemDescriptor.Cinfo
 			{
 				id = SubsystemId,
+#if !UNITY_2019_4
 				providerType = typeof(XRProvider),
 				subsystemTypeOverride = typeof(WebXRImageTrackingSubsystem),
+#endif
 				supportsMovingImages = true,
 				supportsMutableLibrary = true
 			});
@@ -30,7 +32,8 @@ namespace WebXR
 
 		protected override void OnStart()
 		{
-			imageLibrary ??= CreateRuntimeLibrary(null);
+			if(imageLibrary == null)
+				imageLibrary = CreateRuntimeLibrary(null);
 
 			if (imageLibrary is WebXRImageLibrary lib)
 			{
@@ -48,6 +51,7 @@ namespace WebXR
 		{
 			private RuntimeReferenceImageLibrary library;
 
+#if !UNITY_2019_4
 			public override void Start()
 			{
 			}
@@ -55,6 +59,7 @@ namespace WebXR
 			public override void Stop()
 			{
 			}
+#endif
 
 			public override void Destroy()
 			{
@@ -77,6 +82,12 @@ namespace WebXR
 				return library;
 			}
 		}
+#if UNITY_2019_4
+		protected override Provider CreateProvider()
+		{
+			return new XRProvider();
+		}
+#endif
 
 		private class WebXRImageLibrary : MutableRuntimeReferenceImageLibrary
 		{

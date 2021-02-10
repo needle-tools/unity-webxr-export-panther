@@ -17,8 +17,10 @@ namespace WebXR
 			var info = new XRPlaneSubsystemDescriptor.Cinfo
 			{
 				id = SubsystemId,
+#if !UNITY_2019_4
 				providerType = typeof(XRProvider),
 				subsystemTypeOverride = typeof(WebXRPlaneSubsystem),
+#endif
 				supportsHorizontalPlaneDetection = true,
 				supportsVerticalPlaneDetection = true,
 				supportsArbitraryPlaneDetection = false,
@@ -57,5 +59,11 @@ namespace WebXR
 			public override PlaneDetectionMode currentPlaneDetectionMode { get; }
 			public override PlaneDetectionMode requestedPlaneDetectionMode { get; set; }
 		}
+#if UNITY_2019_4
+		protected override Provider CreateProvider()
+		{
+			return new XRProvider();
+		}
+#endif
 	}
 }

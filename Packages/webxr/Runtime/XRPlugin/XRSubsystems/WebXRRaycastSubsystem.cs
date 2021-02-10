@@ -15,8 +15,10 @@ namespace WebXR
 			XRRaycastSubsystemDescriptor.RegisterDescriptor(new XRRaycastSubsystemDescriptor.Cinfo
 			{
 				id = SubsystemId,
+#if !UNITY_2019_4
 				providerType = typeof(XRProvider),
 				subsystemTypeOverride = typeof(WebXRRaycastSubsystem),
+#endif
 				supportsViewportBasedRaycast = true,
 				supportsWorldBasedRaycast = true,
 				supportedTrackableTypes = (TrackableType.Planes & ~TrackableType.PlaneWithinInfinity) | TrackableType.FeaturePoint
@@ -38,5 +40,12 @@ namespace WebXR
 				return base.Raycast(defaultRaycastHit, screenPoint, trackableTypeMask, allocator);
 			}
 		}
+
+		#if UNITY_2019_4
+		protected override Provider CreateProvider()
+		{
+			return new XRProvider();
+		}
+		#endif
 	}
 }

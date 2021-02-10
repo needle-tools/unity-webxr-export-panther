@@ -19,8 +19,10 @@ namespace WebXR
 			var cameraSubsystemCinfo = new XRCameraSubsystemCinfo
 			{
 				id = SubsystemId,
+#if !UNITY_2019_4
 				providerType = typeof(XRProvider),
 				subsystemTypeOverride = typeof(WebXRCameraSubsystem),
+#endif
 				supportsAverageBrightness = true,
 				supportsAverageColorTemperature = false,
 				supportsColorCorrection = true,
@@ -84,5 +86,12 @@ namespace WebXR
 
 			public override Material cameraMaterial { get; }
 		}
+#if UNITY_2019_4
+		protected override Provider CreateProvider()
+		{
+			return new XRProvider();
+		}
+#endif
+
 	}
 }

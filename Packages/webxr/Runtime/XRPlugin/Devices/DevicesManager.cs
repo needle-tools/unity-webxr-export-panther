@@ -194,8 +194,10 @@ namespace WebXR
 					break;
 			}
 			
-			controllerRight ??= CreateController(XRNode.RightHand, WebXRSubsystem.Instance.controller1, InputDeviceCharacteristics.Right);
-			controllerLeft ??= CreateController(XRNode.LeftHand, WebXRSubsystem.Instance.controller2, InputDeviceCharacteristics.Left);
+			if(controllerRight == null)
+				controllerRight = CreateController(XRNode.RightHand, WebXRSubsystem.Instance.controller1, InputDeviceCharacteristics.Right);
+			if(controllerLeft == null)
+				controllerLeft = CreateController(XRNode.LeftHand, WebXRSubsystem.Instance.controller2, InputDeviceCharacteristics.Left);
 		}
 
 		private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
