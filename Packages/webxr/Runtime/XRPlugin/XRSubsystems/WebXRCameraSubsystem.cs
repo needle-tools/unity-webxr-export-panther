@@ -22,6 +22,8 @@ namespace WebXR
 #if !UNITY_2019_4
 				providerType = typeof(XRProvider),
 				subsystemTypeOverride = typeof(WebXRCameraSubsystem),
+#else
+				implementationType = typeof(WebXRCameraSubsystem),
 #endif
 				supportsAverageBrightness = true,
 				supportsAverageColorTemperature = false,
@@ -33,10 +35,10 @@ namespace WebXR
 				supportsCameraImage = true,
 				supportsAverageIntensityInLumens = false,
 				supportsFocusModes = true,
-                supportsFaceTrackingAmbientIntensityLightEstimation = true,
-                supportsFaceTrackingHDRLightEstimation = false,
-                supportsWorldTrackingAmbientIntensityLightEstimation = true,
-                supportsWorldTrackingHDRLightEstimation = true,
+				supportsFaceTrackingAmbientIntensityLightEstimation = true,
+				supportsFaceTrackingHDRLightEstimation = false,
+				supportsWorldTrackingAmbientIntensityLightEstimation = true,
+				supportsWorldTrackingHDRLightEstimation = true,
 			};
 
 			if (!XRCameraSubsystem.Register(cameraSubsystemCinfo))
@@ -47,7 +49,7 @@ namespace WebXR
 		}
 
 		private class XRProvider : Provider
-		{			
+		{
 			/// <summary>
 			/// Start the camera functionality.
 			/// </summary>
@@ -92,6 +94,5 @@ namespace WebXR
 			return new XRProvider();
 		}
 #endif
-
 	}
 }
