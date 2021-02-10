@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
 using needle.weaver.webxr;
 using Unity.XR.OpenVR;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
-using UnityEngine.SubsystemsImplementation;
 using UnityEngine.XR;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.XR.Management;
@@ -19,12 +17,18 @@ namespace WebXR
 		private static readonly List<XRInputSubsystemDescriptor> inputSubsystemDescriptors = new List<XRInputSubsystemDescriptor>();
 		private static readonly List<XRSessionSubsystemDescriptor> sessionSubsystemDescriptors = new List<XRSessionSubsystemDescriptor>();
 		private static readonly List<XRCameraSubsystemDescriptor> cameraSubsystemDescriptors = new List<XRCameraSubsystemDescriptor>();
+		private static readonly List<XRPlaneSubsystemDescriptor> planeSubsystemDescriptors = new List<XRPlaneSubsystemDescriptor>();
+		private static readonly List<XRRaycastSubsystemDescriptor> raycastSubsystemDescriptors = new List<XRRaycastSubsystemDescriptor>();
+		private static readonly List<XRImageTrackingSubsystemDescriptor> imageTrackingSubsystemDescriptors = new List<XRImageTrackingSubsystemDescriptor>();
 
 		private WebXRSubsystem WebXRSubsystem => GetLoadedSubsystem<WebXRSubsystem>();
 		private XRInputSubsystem XRInputSubsystem => GetLoadedSubsystem<XRInputSubsystem>();
 		private XRDisplaySubsystem XRDisplaySubsystem => GetLoadedSubsystem<XRDisplaySubsystem>();
 		private XRCameraSubsystem XRCameraSubsystem => GetLoadedSubsystem<XRCameraSubsystem>();
 		private XRSessionSubsystem XRSessionSubsystem => GetLoadedSubsystem<XRSessionSubsystem>();
+		private XRPlaneSubsystem XRPlaneSubsystem => GetLoadedSubsystem<XRPlaneSubsystem>();
+		private XRRaycastSubsystem XRRaycastSubsystem => GetLoadedSubsystem<XRRaycastSubsystem>();
+		private XRImageTrackingSubsystem XRImageTrackingSubsystem => GetLoadedSubsystem<XRImageTrackingSubsystem>();
 
 		internal static XRDisplaySubsystem DisplaySubsystem { get; private set; }
 		internal static XRInputSubsystem InputSubsystem { get; private set; }
@@ -47,6 +51,9 @@ namespace WebXR
 			CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(inputSubsystemDescriptors, XRInputSubsystem_Patch.Id);
 			CreateSubsystem<XRSessionSubsystemDescriptor, XRSessionSubsystem>(sessionSubsystemDescriptors, WebXRSessionSubsystem.SubsystemId);
 			CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>(cameraSubsystemDescriptors, WebXRCameraSubsystem.SubsystemId);
+			CreateSubsystem<XRPlaneSubsystemDescriptor, XRPlaneSubsystem>(planeSubsystemDescriptors, WebXRPlaneSubsystem.SubsystemId);
+			CreateSubsystem<XRRaycastSubsystemDescriptor, XRRaycastSubsystem>(raycastSubsystemDescriptors, WebXRRaycastSubsystem.SubsystemId);
+			CreateSubsystem<XRImageTrackingSubsystemDescriptor, XRImageTrackingSubsystem>(imageTrackingSubsystemDescriptors, WebXRImageTrackingSubsystem.SubsystemId);
 
 			return WebXRSubsystem != null;
 		}
@@ -74,6 +81,9 @@ namespace WebXR
 			WebXRSubsystem.Start();
 			XRSessionSubsystem.Start();
 			XRCameraSubsystem.Start();
+			XRPlaneSubsystem.Start();
+			XRRaycastSubsystem.Start();
+			XRImageTrackingSubsystem.Start();
 			return true;
 		}
 
@@ -84,6 +94,9 @@ namespace WebXR
 			XRInputSubsystem.Stop();
 			XRSessionSubsystem.Stop();
 			XRCameraSubsystem.Stop();
+			XRPlaneSubsystem.Stop();
+			XRRaycastSubsystem.Stop();
+			XRImageTrackingSubsystem.Stop();
 			return base.Stop();
 		}
 
@@ -94,6 +107,9 @@ namespace WebXR
 			XRInputSubsystem.Destroy();
 			XRSessionSubsystem.Destroy();
 			XRCameraSubsystem.Destroy();
+			XRPlaneSubsystem.Destroy();
+			XRRaycastSubsystem.Destroy();
+			XRImageTrackingSubsystem.Destroy();
 			return base.Deinitialize();
 		}
 	}

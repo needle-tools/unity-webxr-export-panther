@@ -45,24 +45,13 @@ namespace WebXR
 #endif
 		}
 
-		public WebXRCameraSubsystem()
-		{
-			Debug.Log("ctr Created " + nameof(WebXRCameraSubsystem));
-		}
-
 		private class XRProvider : Provider
-		{
-			public XRProvider()
-			{
-				Debug.Log("ctr Created provider");
-			}
-			
+		{			
 			/// <summary>
 			/// Start the camera functionality.
 			/// </summary>
 			public override void Start()
 			{
-				Debug.Log("START " + this);
 			}
 
 			/// <summary>

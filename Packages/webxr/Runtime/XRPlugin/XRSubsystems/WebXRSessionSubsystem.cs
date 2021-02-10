@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 
@@ -24,6 +25,17 @@ namespace WebXR
 
 		private class XRProvider : Provider
 		{
+			// TODO: implement with backend :)
+
+			public override Feature requestedFeatures { get; }
+			public override Feature requestedTrackingMode { get; set; }
+			public override TrackingState trackingState { get; }
+			public override NotTrackingReason notTrackingReason { get; }
+			public override bool matchFrameRateEnabled { get; }
+			public override bool matchFrameRateRequested { get; set; }
+			public override int frameRate { get; }
+			public override Feature currentTrackingMode { get; }
+			public override IntPtr nativePtr { get; }
 		}
 	}
 }
