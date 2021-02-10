@@ -41,11 +41,22 @@ namespace WebXR
 			{
 				Debug.LogError("Failed registering failed registering " + cameraSubsystemCinfo.id);
 			}
+			else Debug.Log("registered descriptor " + cameraSubsystemCinfo.id);
 #endif
+		}
+
+		public WebXRCameraSubsystem()
+		{
+			Debug.Log("ctr Created " + nameof(WebXRCameraSubsystem));
 		}
 
 		private class XRProvider : Provider
 		{
+			public XRProvider()
+			{
+				Debug.Log("ctr Created provider");
+			}
+			
 			/// <summary>
 			/// Start the camera functionality.
 			/// </summary>
