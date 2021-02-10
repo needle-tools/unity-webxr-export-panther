@@ -125,7 +125,7 @@ namespace WebXR
 		{
 			string hint = null;
 #if UNITY_INPUT_SYSTEM
-			if (string.IsNullOrEmpty(hint))
+			// if (string.IsNullOrEmpty(hint))
 			{
 				var driver = Object.FindObjectOfType<TrackedPoseDriver>();
 				if (driver != null)
@@ -168,28 +168,23 @@ namespace WebXR
 				}
 			}
 #endif
+			// TODO: legacy input helpers
 			return hint;
 		}
 
 
 		private static void InternalCreateInputDevices()
 		{
-			Debug.Log("Create InputDevices");
-
 			cameraDevice?.Disconnect();
 			cameraDevice = null;
 
-			// here we figure out what devices we need to create for the scene
-			// e.g. a scene setup with ar pose driver, old input system we 
-
-			bool hasXRRig;
-			string cameraDeviceLayoutHint = GetHint();
-
-
-			Debug.Log(cameraDeviceLayoutHint);
+			// here we figure out what devices we need to create for the scene based on scene setup and assigned actions
+			var cameraDeviceLayoutHint = GetHint();
+			if (string.IsNullOrEmpty(cameraDeviceLayoutHint)) Debug.LogWarning("Missing device hint for creating camera device in " + nameof(DevicesManager));
 
 			switch (cameraDeviceLayoutHint)
 			{
+				default:
 				case "centerEyePosition":
 				case "centerEyeRotation":
 					cameraDevice = new MockInputDevice(
@@ -221,33 +216,9 @@ namespace WebXR
 					cameraDevice.AddFeature(CommonUsages.centerEyeRotation, () => WebXRSubsystem.Instance.centerRotation);
 					break;
 			}
-
-			Debug.Log("Created camera device " + cameraDevice.Name + " - " + cameraDevice.Layout);
-
-			// if (cameraDevice == null)
-			// {
-			// 	cameraDevice = MockDeviceBuilder.CreateHeadset(
-			// 		() => true,
-			// 		() => WebXRSubsystem.Instance.centerPosition,
-			// 		() => WebXRSubsystem.Instance.centerRotation,
-			// 		null,
-			// 		() => WebXRSubsystem.Instance.leftPosition,
-			// 		() => WebXRSubsystem.Instance.leftRotation,
-			// 		() => WebXRSubsystem.Instance.rightPosition,
-			// 		() => WebXRSubsystem.Instance.rightRotation
-			// 	);
-			// 	devices.Add(cameraDevice);
-			// }
-
-			if (controllerRight == null)
-			{
-				controllerRight = CreateController(XRNode.RightHand, WebXRSubsystem.Instance.controller1, InputDeviceCharacteristics.Right);
-			}
-
-			if (controllerLeft == null)
-			{
-				controllerLeft = CreateController(XRNode.LeftHand, WebXRSubsystem.Instance.controller2, InputDeviceCharacteristics.Left);
-			}
+			
+			controllerRight ??= CreateController(XRNode.RightHand, WebXRSubsystem.Instance.controller1, InputDeviceCharacteristics.Right);
+			controllerLeft ??= CreateController(XRNode.LeftHand, WebXRSubsystem.Instance.controller2, InputDeviceCharacteristics.Left);
 		}
 
 		private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
