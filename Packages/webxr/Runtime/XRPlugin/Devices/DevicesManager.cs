@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using needle.weaver.webxr;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR;
 using UnityEngine.XR.ARFoundation;
@@ -10,11 +9,15 @@ using Object = UnityEngine.Object;
 using UnityEditor;
 
 #endif
+
+#if UNITY_INPUT_SYSTEM
+using UnityEngine.InputSystem.XR;
+#endif
+
 namespace WebXR
 {
 	public static class DevicesManager
 	{
-		
 #if UNITY_WEBGL && !UNITY_EDITOR
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 #endif
@@ -167,7 +170,7 @@ namespace WebXR
 					cameraDevice = new MockInputDevice(
 						"<XRHMD>",
 						InputDeviceCharacteristics.HeadMounted | InputDeviceCharacteristics.TrackedDevice,
-						XRNode.Head, nameof(XRHMD));
+						XRNode.Head, "XRHMD");
 					cameraDevice.AddFeature(CommonUsages.isTracked, () => true);
 					cameraDevice.AddFeature(CommonUsages.trackingState, () => InputTrackingState.Position | InputTrackingState.Rotation);
 					cameraDevice.AddFeature(CommonUsages.devicePosition, () => WebXRSubsystem.Instance.centerPosition);
@@ -186,24 +189,35 @@ namespace WebXR
 						"WebXR-Device",
 						InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.TrackedDevice |
 						InputDeviceCharacteristics.Camera | InputDeviceCharacteristics.HeadMounted,
-						XRNode.Head, nameof(WebXRHandheldARInputDevice));
+						XRNode.Head
+#if UNITY_INPUT_SYSTEM
+						,nameof(WebXRHandheldARInputDevice)
+#else
+						, null
+#endif
+					);
 					cameraDevice.AddFeature(CommonUsages.devicePosition, () => WebXRSubsystem.Instance.centerPosition);
 					cameraDevice.AddFeature(CommonUsages.deviceRotation, () => WebXRSubsystem.Instance.centerRotation);
 					cameraDevice.AddFeature(CommonUsages.centerEyePosition, () => WebXRSubsystem.Instance.centerPosition);
 					cameraDevice.AddFeature(CommonUsages.centerEyeRotation, () => WebXRSubsystem.Instance.centerRotation);
 					break;
 			}
-			
-			if(controllerRight == null)
+
+			if (controllerRight == null)
 				controllerRight = CreateController(XRNode.RightHand, WebXRSubsystem.Instance.controller1, InputDeviceCharacteristics.Right);
-			if(controllerLeft == null)
+			if (controllerLeft == null)
 				controllerLeft = CreateController(XRNode.LeftHand, WebXRSubsystem.Instance.controller2, InputDeviceCharacteristics.Left);
 		}
 
 		private static MockInputDevice CreateController(XRNode node, WebXRControllerData controller, InputDeviceCharacteristics side)
 		{
-			var device = new MockInputDevice("<XRController>", InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | side, node,
-				nameof(WebXRControllerLayout))
+			var device = new MockInputDevice("<XRController>", InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | side, node
+#if UNITY_INPUT_SYSTEM
+			,nameof(WebXRControllerLayout)
+#else
+				, null
+#endif
+			)
 			{
 			};
 			device.AddFeature(CommonUsages.isTracked, () => true);

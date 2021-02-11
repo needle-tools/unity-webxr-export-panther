@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using needle.weaver.webxr;
-using Unity.XR.OpenVR;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.XR;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.XR.Management;
+
+#if UNITY_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
+using Unity.XR.OpenVR;
+#endif
 
 namespace WebXR
 {
