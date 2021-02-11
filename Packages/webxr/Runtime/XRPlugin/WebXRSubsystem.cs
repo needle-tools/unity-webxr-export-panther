@@ -264,6 +264,7 @@ namespace WebXR
           break;
       }
       OnXRChange?.Invoke(state, _viewsCount, leftRect, rightRect);
+      XRChange?.Invoke(state);
       DevicesManager.OnXRStateChanged(prevState, state);
     }
 

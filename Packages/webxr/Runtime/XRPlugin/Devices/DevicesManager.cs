@@ -23,13 +23,24 @@ namespace WebXR
 #endif
 		private static void Init()
 		{
+			SceneManager.sceneLoaded -= OnSceneLoaded;
 			SceneManager.sceneLoaded += OnSceneLoaded;
+			SceneManager.sceneUnloaded -= OnSceneUnloaded;
+			SceneManager.sceneUnloaded += OnSceneUnloaded;
+		}
+
+		private static void OnSceneUnloaded(Scene arg0)
+		{
+			Debug.Log("scene unloaded " + arg0.name);
+			foreach (var dev in devices) dev.Disconnect();
 		}
 
 		private static void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
 		{
+			Debug.Log("scene loaded " + arg0.name);
 			CreateDevices();
 			TrackedDevicesHelper.ResetTrackedPoseDrivers();
+			OnXRStateChanged(WebXRSubsystem.xrState, WebXRSubsystem.xrState);
 		}
 
 		public static void OnStart()
