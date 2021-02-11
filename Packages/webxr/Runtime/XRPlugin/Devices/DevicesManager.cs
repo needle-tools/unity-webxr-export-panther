@@ -170,7 +170,7 @@ namespace WebXR
 					cameraDevice = new MockInputDevice(
 						"<XRHMD>",
 						InputDeviceCharacteristics.HeadMounted | InputDeviceCharacteristics.TrackedDevice,
-						XRNode.Head, "XRHMD");
+						XRNode.Head, nameof(XRHMD));
 					cameraDevice.AddFeature(CommonUsages.isTracked, () => true);
 					cameraDevice.AddFeature(CommonUsages.trackingState, () => InputTrackingState.Position | InputTrackingState.Rotation);
 					cameraDevice.AddFeature(CommonUsages.devicePosition, () => WebXRSubsystem.Instance.centerPosition);
