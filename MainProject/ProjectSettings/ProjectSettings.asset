@@ -128,10 +128,7 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleVersion: 0.1
-  preloadedAssets:
-  - {fileID: 11400000, guid: 65eada5edf5f16b4a9d0bd3a76fa026f, type: 2}
-  - {fileID: 11400000, guid: a5e5b7605fb48984988490688c2a74e2, type: 2}
-  - {fileID: 2478256764130162806, guid: 552445d583cb06c4eaf9d56596dd45c2, type: 2}
+  preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -332,8 +329,7 @@ PlayerSettings:
   openGLRequireES31AEP: 0
   openGLRequireES32: 0
   m_TemplateCustomTags:
-    DESCRIPTION: Complete interactive 3D scene demo made in Unity and exported to
-      WebXR with the WebXR template of the Unity WebXR Export
+    DESCRIPTION: 
   mobileMTRendering:
     Android: 1
     iPhone: 1
@@ -569,7 +565,7 @@ PlayerSettings:
   webGLDebugSymbols: 0
   webGLEmscriptenArgs: 
   webGLModulesDirectory: 
-  webGLTemplate: PROJECT:WebXR
+  webGLTemplate: PROJECT:WebXR2020
   webGLAnalyzeBuildSize: 0
   webGLUseEmbeddedResources: 0
   webGLCompressionFormat: 2
