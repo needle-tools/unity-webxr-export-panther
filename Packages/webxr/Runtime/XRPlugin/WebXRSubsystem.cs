@@ -354,7 +354,6 @@ namespace WebXR
       }
 
       newControllerData.frame = frameNumber;
-      bool wasDisabled = !newControllerData.enabled;
       newControllerData.enabled = controllersArray[arrayPosition++] != 0;
       newControllerData.hand = (int)controllersArray[arrayPosition++];
       if (!newControllerData.enabled)
@@ -375,7 +374,7 @@ namespace WebXR
       newControllerData.touchpadY = controllersArray[arrayPosition++];
       newControllerData.buttonA = controllersArray[arrayPosition++];
       newControllerData.buttonB = controllersArray[arrayPosition++];
-      if (controllersArray[arrayPosition++] == 1 || wasDisabled)
+      if (controllersArray[arrayPosition++] == 1)
       {
         newControllerData.gripPosition = new Vector3(controllersArray[arrayPosition++], controllersArray[arrayPosition++], controllersArray[arrayPosition++]);
         newControllerData.gripRotation = new Quaternion(controllersArray[arrayPosition++], controllersArray[arrayPosition++], controllersArray[arrayPosition++],
