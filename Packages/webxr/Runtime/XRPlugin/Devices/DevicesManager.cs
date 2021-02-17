@@ -91,6 +91,16 @@ namespace WebXR
 
 		public static void OnUpdatedData()
 		{
+			if (Time.frameCount % 30 == 0)
+			{
+				var cams = Object.FindObjectsOfType<Camera>();
+				Debug.Log(cams);
+				foreach (var cam in cams)
+				{
+					Debug.Log(cam);
+					Debug.Log(cam.enabled);
+				}
+			}
 			switch (WebXRSubsystem.xrState)
 			{
 				case WebXRState.VR:

@@ -141,6 +141,7 @@ namespace WebXR
       
       XRDisplaySubsystem_Patch.Instance.ProjectionLeft = leftProjectionMatrix;
       XRDisplaySubsystem_Patch.Instance.ProjectionRight = rightProjectionMatrix;
+      
 
       OnHeadsetUpdate?.Invoke(
         leftProjectionMatrix,
